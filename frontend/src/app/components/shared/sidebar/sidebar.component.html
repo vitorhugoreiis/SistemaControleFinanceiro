@@ -1,0 +1,33 @@
+<div class="sidebar">
+  <div class="sidebar-header">
+    <h2>Controle Financeiro</h2>
+  </div>
+  
+  <div class="user-info" *ngIf="usuario">
+    <div class="user-avatar">
+      <span>{{ usuario.nome.charAt(0) }}</span>
+    </div>
+    <div class="user-details">
+      <p class="user-name">{{ usuario.nome }}</p>
+      <p class="user-email">{{ usuario.email }}</p>
+    </div>
+  </div>
+  
+  <nav class="sidebar-nav">
+    <ul>
+      <li *ngFor="let item of menuItems">
+        <a [routerLink]="item.route" routerLinkActive="active">
+          <span class="material-icons">{{ item.icon }}</span>
+          <span class="nav-text">{{ item.label }}</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+  
+  <div class="sidebar-footer">
+    <button class="logout-btn" (click)="logout()">
+      <span class="material-icons">exit_to_app</span>
+      <span>Sair</span>
+    </button>
+  </div>
+</div>
