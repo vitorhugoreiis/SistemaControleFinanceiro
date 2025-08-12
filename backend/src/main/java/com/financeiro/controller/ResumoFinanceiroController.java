@@ -30,4 +30,15 @@ public class ResumoFinanceiroController {
         ResumoFinanceiroDTO resumo = transacaoService.gerarResumoFinanceiro(usuarioId, dataInicio, dataFim);
         return ResponseEntity.ok(resumo);
     }
+    
+    @GetMapping("/usuario/{usuarioId}/perfil/{perfilId}")
+    public ResponseEntity<ResumoFinanceiroDTO> gerarResumoFinanceiroPorPerfil(
+            @PathVariable Long usuarioId,
+            @PathVariable Long perfilId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim) {
+        
+        ResumoFinanceiroDTO resumo = transacaoService.gerarResumoFinanceiro(usuarioId, perfilId, dataInicio, dataFim);
+        return ResponseEntity.ok(resumo);
+    }
 }

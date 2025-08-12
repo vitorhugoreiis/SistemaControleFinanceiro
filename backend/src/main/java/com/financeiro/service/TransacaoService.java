@@ -15,12 +15,14 @@ import com.financeiro.dto.ResumoFinanceiroDTO.ResumoCategoria;
 import com.financeiro.dto.TransacaoDTO;
 import com.financeiro.entity.Categoria;
 import com.financeiro.entity.Instituicao;
+import com.financeiro.entity.Perfil;
 import com.financeiro.entity.Subcategoria;
 import com.financeiro.entity.Transacao;
 import com.financeiro.entity.Usuario;
 import com.financeiro.exception.RecursoNaoEncontradoException;
 import com.financeiro.repository.CategoriaRepository;
 import com.financeiro.repository.InstituicaoRepository;
+import com.financeiro.repository.PerfilRepository;
 import com.financeiro.repository.SubcategoriaRepository;
 import com.financeiro.repository.TransacaoRepository;
 import com.financeiro.repository.UsuarioRepository;
@@ -102,6 +104,11 @@ public class TransacaoService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário", usuarioId));
         
+        // Se for uma transferência entre perfis, criar duas transações vinculadas
+        if (Boolean.TRUE.equals(dto.getTransferenciaEntrePerfis()) && dto.getPerfilDestinoId() != null) {
+            return criarTransferenciaEntrePerfis(dto, usuario);
+        }
+        
         Categoria categoria = categoriaRepository.findById(dto.getCategoriaId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria", dto.getCategoriaId()));
         
@@ -123,6 +130,13 @@ public class TransacaoService {
         transacao.setSubcategoria(subcategoria);
         transacao.setInstituicao(instituicao);
         transacao.setUsuario(usuario);
+        
+        // Adicionar informações de perfil
+        if (dto.getPerfilId() != null) {
+            Perfil perfil = perfilRepository.findById(dto.getPerfilId())
+                    .orElseThrow(() -> new RecursoNaoEncontradoException("Perfil", dto.getPerfilId()));
+            transacao.setPerfil(perfil);
+        }
         
         transacao = transacaoRepository.save(transacao);
         
@@ -193,6 +207,36 @@ public class TransacaoService {
         instituicaoService.atualizarSaldo(instituicao.getId(), novoSaldo);
     }
     
+    @Autowired
+    private PerfilRepository perfilRepository;
+    
+    public List<TransacaoDTO> listarPorPerfil(Long perfilId) {
+        Perfil perfil = perfilRepository.findById(perfilId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Perfil", perfilId));
+        
+        return transacaoRepository.findByPerfil(perfil).stream()
+                .map(this::converterParaDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public List<TransacaoDTO> listarPorPerfilETipo(Long perfilId, String tipo) {
+        Perfil perfil = perfilRepository.findById(perfilId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Perfil", perfilId));
+        
+        return transacaoRepository.findByPerfilAndTipo(perfil, tipo).stream()
+                .map(this::converterParaDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public List<TransacaoDTO> listarPorPerfilEPeriodo(Long perfilId, LocalDate dataInicio, LocalDate dataFim) {
+        Perfil perfil = perfilRepository.findById(perfilId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Perfil", perfilId));
+        
+        return transacaoRepository.findByPerfilAndDataBetween(perfil, dataInicio, dataFim).stream()
+                .map(this::converterParaDTO)
+                .collect(Collectors.toList());
+    }
+    
     private TransacaoDTO converterParaDTO(Transacao transacao) {
         TransacaoDTO dto = new TransacaoDTO();
         dto.setId(transacao.getId());
@@ -211,12 +255,99 @@ public class TransacaoService {
         dto.setInstituicaoId(transacao.getInstituicao().getId());
         dto.setInstituicaoNome(transacao.getInstituicao().getNome());
         
+        if (transacao.getPerfil() != null) {
+            dto.setPerfilId(transacao.getPerfil().getId());
+            dto.setPerfilNome(transacao.getPerfil().getNome());
+        }
+        
+        dto.setTransferenciaEntrePerfis(transacao.getTransferenciaEntrePerfis());
+        
+        if (transacao.getPerfilDestino() != null) {
+            dto.setPerfilDestinoId(transacao.getPerfilDestino().getId());
+            dto.setPerfilDestinoNome(transacao.getPerfilDestino().getNome());
+        }
+        
+        if (transacao.getTransacaoRelacionada() != null) {
+            dto.setTransacaoRelacionadaId(transacao.getTransacaoRelacionada().getId());
+        }
+        
         return dto;
     }
     
+    @Transactional
+    private TransacaoDTO criarTransferenciaEntrePerfis(TransacaoDTO dto, Usuario usuario) {
+        // Buscar perfis de origem e destino
+        Perfil perfilOrigem = perfilRepository.findById(dto.getPerfilId())
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Perfil de origem", dto.getPerfilId()));
+        
+        Perfil perfilDestino = perfilRepository.findById(dto.getPerfilDestinoId())
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Perfil de destino", dto.getPerfilDestinoId()));
+        
+        // Buscar categorias para transferência entre perfis
+        Categoria categoriaDespesa = categoriaRepository.findByNomeAndTipo("Transferência entre Perfis", "Despesa")
+                .orElseThrow(() -> new RuntimeException("Categoria 'Transferência entre Perfis' do tipo Despesa não encontrada"));
+        
+        Categoria categoriaReceita = categoriaRepository.findByNomeAndTipo("Transferência entre Perfis", "Receita")
+                .orElseThrow(() -> new RuntimeException("Categoria 'Transferência entre Perfis' do tipo Receita não encontrada"));
+        
+        // Buscar instituições
+        Instituicao instituicaoOrigem = instituicaoRepository.findById(dto.getInstituicaoId())
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Instituição", dto.getInstituicaoId()));
+        
+        // 1. Criar transação de saída (Despesa) no perfil de origem
+        Transacao transacaoSaida = new Transacao();
+        transacaoSaida.setData(dto.getData());
+        transacaoSaida.setDescricao(dto.getDescricao() + " (Saída para " + perfilDestino.getNome() + ")");
+        transacaoSaida.setValor(dto.getValor());
+        transacaoSaida.setTipo("Despesa");
+        transacaoSaida.setCategoria(categoriaDespesa);
+        transacaoSaida.setInstituicao(instituicaoOrigem);
+        transacaoSaida.setUsuario(usuario);
+        transacaoSaida.setPerfil(perfilOrigem);
+        transacaoSaida.setTransferenciaEntrePerfis(true);
+        transacaoSaida.setPerfilDestino(perfilDestino);
+        
+        transacaoSaida = transacaoRepository.save(transacaoSaida);
+        
+        // Atualizar o saldo da instituição de origem (reduzir)
+        atualizarSaldoInstituicao(instituicaoOrigem, dto.getValor(), "Despesa");
+        
+        // 2. Criar transação de entrada (Receita) no perfil de destino
+        Transacao transacaoEntrada = new Transacao();
+        transacaoEntrada.setData(dto.getData());
+        transacaoEntrada.setDescricao(dto.getDescricao() + " (Entrada de " + perfilOrigem.getNome() + ")");
+        transacaoEntrada.setValor(dto.getValor());
+        transacaoEntrada.setTipo("Receita");
+        transacaoEntrada.setCategoria(categoriaReceita);
+        transacaoEntrada.setInstituicao(instituicaoOrigem); // Mesma instituição ou poderia ser outra
+        transacaoEntrada.setUsuario(usuario);
+        transacaoEntrada.setPerfil(perfilDestino);
+        transacaoEntrada.setTransferenciaEntrePerfis(true);
+        transacaoEntrada.setTransacaoRelacionada(transacaoSaida);
+        
+        transacaoEntrada = transacaoRepository.save(transacaoEntrada);
+        
+        // Atualizar a transação de saída para referenciar a de entrada
+        transacaoSaida.setTransacaoRelacionada(transacaoEntrada);
+        transacaoRepository.save(transacaoSaida);
+        
+        // Retornar a transação de saída como resultado
+        return converterParaDTO(transacaoSaida);
+    }
+    
     public ResumoFinanceiroDTO gerarResumoFinanceiro(Long usuarioId, LocalDate dataInicio, LocalDate dataFim) {
+        return gerarResumoFinanceiro(usuarioId, null, dataInicio, dataFim);
+    }
+    
+    public ResumoFinanceiroDTO gerarResumoFinanceiro(Long usuarioId, Long perfilId, LocalDate dataInicio, LocalDate dataFim) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário", usuarioId));
+        
+        Perfil perfil = null;
+        if (perfilId != null) {
+            perfil = perfilRepository.findById(perfilId)
+                    .orElseThrow(() -> new RecursoNaoEncontradoException("Perfil", perfilId));
+        }
         
         // Calcular total de receitas
         Double totalReceitasDouble = transacaoRepository.calcularSomaPorTipoEPeriodo(usuario, "Receita", dataInicio, dataFim);

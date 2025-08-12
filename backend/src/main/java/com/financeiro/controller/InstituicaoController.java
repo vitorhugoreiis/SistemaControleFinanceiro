@@ -29,7 +29,16 @@ public class InstituicaoController {
     
     @GetMapping
     public ResponseEntity<List<InstituicaoDTO>> listar(
-            @RequestParam(required = false) String tipo) {
+            @RequestParam(required = false) String tipo,
+            @RequestParam(required = false) Long perfilId) {
+        
+        if (perfilId != null && tipo != null && !tipo.isEmpty()) {
+            return ResponseEntity.ok(instituicaoService.listarPorPerfilETipo(perfilId, tipo));
+        }
+        
+        if (perfilId != null) {
+            return ResponseEntity.ok(instituicaoService.listarPorPerfil(perfilId));
+        }
         
         if (tipo != null && !tipo.isEmpty()) {
             return ResponseEntity.ok(instituicaoService.listarPorTipo(tipo));

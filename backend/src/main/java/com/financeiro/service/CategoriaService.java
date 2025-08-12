@@ -9,13 +9,18 @@ import org.springframework.stereotype.Service;
 import com.financeiro.dto.CategoriaDTO;
 import com.financeiro.dto.SubcategoriaDTO;
 import com.financeiro.entity.Categoria;
+import com.financeiro.entity.Perfil;
 import com.financeiro.repository.CategoriaRepository;
+import com.financeiro.repository.PerfilRepository;
 
 @Service
 public class CategoriaService {
 
     @Autowired
     private CategoriaRepository categoriaRepository;
+    
+    @Autowired
+    private PerfilRepository perfilRepository;
     
     @Autowired
     private SubcategoriaService subcategoriaService;
@@ -28,6 +33,24 @@ public class CategoriaService {
     
     public List<CategoriaDTO> listarPorTipo(String tipo) {
         return categoriaRepository.findByTipo(tipo).stream()
+                .map(this::converterParaDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public List<CategoriaDTO> listarPorPerfil(Long perfilId) {
+        Perfil perfil = perfilRepository.findById(perfilId)
+                .orElseThrow(() -> new RuntimeException("Perfil não encontrado"));
+        
+        return categoriaRepository.findByPerfil(perfil).stream()
+                .map(this::converterParaDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public List<CategoriaDTO> listarPorPerfilETipo(Long perfilId, String tipo) {
+        Perfil perfil = perfilRepository.findById(perfilId)
+                .orElseThrow(() -> new RuntimeException("Perfil não encontrado"));
+        
+        return categoriaRepository.findByPerfilAndTipo(perfil, tipo).stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }

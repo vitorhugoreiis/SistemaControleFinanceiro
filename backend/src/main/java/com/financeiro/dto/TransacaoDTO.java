@@ -40,7 +40,18 @@ public class TransacaoDTO {
     @NotNull(message = "O ID da instituição é obrigatório")
     private Long instituicaoId;
     
+    @NotNull(message = "O ID do perfil é obrigatório")
+    private Long perfilId;
+    
+    private Boolean transferenciaEntrePerfis = false;
+    
+    private Long perfilDestinoId;
+    
+    private Long transacaoRelacionadaId;
+    
     private String categoriaNome;
     private String subcategoriaNome;
     private String instituicaoNome;
+    private String perfilNome;
+    private String perfilDestinoNome;
 }

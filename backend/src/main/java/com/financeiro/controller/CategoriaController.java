@@ -29,7 +29,16 @@ public class CategoriaController {
     
     @GetMapping
     public ResponseEntity<List<CategoriaDTO>> listar(
-            @RequestParam(required = false) String tipo) {
+            @RequestParam(required = false) String tipo,
+            @RequestParam(required = false) Long perfilId) {
+        
+        if (perfilId != null && tipo != null && !tipo.isEmpty()) {
+            return ResponseEntity.ok(categoriaService.listarPorPerfilETipo(perfilId, tipo));
+        }
+        
+        if (perfilId != null) {
+            return ResponseEntity.ok(categoriaService.listarPorPerfil(perfilId));
+        }
         
         if (tipo != null && !tipo.isEmpty()) {
             return ResponseEntity.ok(categoriaService.listarPorTipo(tipo));

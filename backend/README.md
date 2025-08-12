@@ -6,8 +6,8 @@ Este é o backend do Sistema de Controle Financeiro, desenvolvido com Spring Boo
 
 ## Tecnologias Utilizadas
 
-- Java 17
-- Spring Boot 3.1.0
+- Java 21
+- Spring Boot 3.2.3
 - Spring Data JPA
 - Spring Web
 - Spring Validation
@@ -16,6 +16,13 @@ Este é o backend do Sistema de Controle Financeiro, desenvolvido com Spring Boo
 - H2 Database (desenvolvimento)
 - PostgreSQL (produção)
 - Swagger/OpenAPI para documentação da API
+
+## Recursos do Java 21 Implementados
+
+- **Virtual Threads**: Implementados no servidor Tomcat para melhorar o desempenho de operações de I/O sem aumentar o consumo de recursos.
+- **Records**: Utilizados para criar DTOs imutáveis de forma concisa (exemplo: `TransacaoView`).
+- **Pattern Matching para switch**: Implementado para simplificar a lógica de classificação de transações.
+- **Sequenced Collections**: Utilizados para manipular coleções ordenadas de forma mais intuitiva.
 
 ## Estrutura do Projeto
 

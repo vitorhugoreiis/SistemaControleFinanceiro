@@ -3,6 +3,7 @@ package com.financeiro.entity;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,11 +19,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "categorias")
+@Table(name = "perfis")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Categoria {
+public class Perfil {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,13 +33,20 @@ public class Categoria {
     private String nome;
     
     @NotBlank(message = "O tipo é obrigatório")
-    private String tipo; // Receita ou Despesa
-    
-    @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL)
-    private List<Subcategoria> subcategorias;
+    @Column(name = "tipo_perfil")
+    private String tipoPerfil; // PF ou PJ
     
     @ManyToOne
-    @JoinColumn(name = "perfil_id")
-    @NotNull(message = "O perfil é obrigatório")
-    private Perfil perfil;
+    @JoinColumn(name = "usuario_id")
+    @NotNull(message = "O usuário é obrigatório")
+    private Usuario usuario;
+    
+    @OneToMany(mappedBy = "perfil", cascade = CascadeType.ALL)
+    private List<Instituicao> instituicoes;
+    
+    @OneToMany(mappedBy = "perfil", cascade = CascadeType.ALL)
+    private List<Transacao> transacoes;
+    
+    @OneToMany(mappedBy = "perfil", cascade = CascadeType.ALL)
+    private List<Categoria> categorias;
 }

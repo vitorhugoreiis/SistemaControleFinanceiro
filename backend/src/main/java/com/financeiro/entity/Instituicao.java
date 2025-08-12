@@ -6,6 +6,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -34,4 +36,9 @@ public class Instituicao {
     private BigDecimal saldoInicial;
     
     private BigDecimal saldoAtual;
+    
+    @ManyToOne
+    @JoinColumn(name = "perfil_id")
+    @NotNull(message = "O perfil é obrigatório")
+    private Perfil perfil;
 }

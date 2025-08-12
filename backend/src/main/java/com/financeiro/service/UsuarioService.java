@@ -11,12 +11,16 @@ import com.financeiro.dto.UsuarioCadastroDTO;
 import com.financeiro.dto.UsuarioDTO;
 import com.financeiro.entity.Usuario;
 import com.financeiro.repository.UsuarioRepository;
+import com.financeiro.service.PerfilService;
 
 @Service
 public class UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    
+    @Autowired
+    private PerfilService perfilService;
     
     public List<UsuarioDTO> listarTodos() {
         return usuarioRepository.findAll().stream()
@@ -50,6 +54,9 @@ public class UsuarioService {
         usuario.setSenhaHash(dto.getSenha()); // Em uma aplicação real, a senha deve ser criptografada
         
         usuario = usuarioRepository.save(usuario);
+        
+        // Criar perfil padrão para o novo usuário
+        perfilService.criarPerfilPadrao(usuario);
         
         return converterParaDTO(usuario);
     }

@@ -32,9 +32,22 @@ public class TransacaoController {
     @GetMapping
     public ResponseEntity<List<TransacaoDTO>> listar(
             @RequestParam(required = false) Long usuarioId,
+            @RequestParam(required = false) Long perfilId,
             @RequestParam(required = false) String tipo,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim) {
+        
+        if (perfilId != null && tipo != null) {
+            return ResponseEntity.ok(transacaoService.listarPorPerfilETipo(perfilId, tipo));
+        }
+        
+        if (perfilId != null && dataInicio != null && dataFim != null) {
+            return ResponseEntity.ok(transacaoService.listarPorPerfilEPeriodo(perfilId, dataInicio, dataFim));
+        }
+        
+        if (perfilId != null) {
+            return ResponseEntity.ok(transacaoService.listarPorPerfil(perfilId));
+        }
         
         if (usuarioId != null && tipo != null) {
             return ResponseEntity.ok(transacaoService.listarPorUsuarioETipo(usuarioId, tipo));
@@ -67,8 +80,13 @@ public class TransacaoController {
     @PostMapping
     public ResponseEntity<TransacaoDTO> criar(
             @Valid @RequestBody TransacaoDTO dto,
-            @RequestParam Long usuarioId) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(transacaoService.salvar(dto, usuarioId));
+            @RequestParam(required = false) Long usuarioId,
+            @RequestParam(required = false) Long perfilId) {
+        if (perfilId != null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(transacaoService.salvar(dto, perfilId));
+        } else {
+            return ResponseEntity.status(HttpStatus.CREATED).body(transacaoService.salvar(dto, usuarioId));
+        }
     }
     
     @PutMapping("/{id}")

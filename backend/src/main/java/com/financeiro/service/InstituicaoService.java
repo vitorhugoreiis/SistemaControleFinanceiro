@@ -8,13 +8,18 @@ import org.springframework.stereotype.Service;
 
 import com.financeiro.dto.InstituicaoDTO;
 import com.financeiro.entity.Instituicao;
+import com.financeiro.entity.Perfil;
 import com.financeiro.repository.InstituicaoRepository;
+import com.financeiro.repository.PerfilRepository;
 
 @Service
 public class InstituicaoService {
 
     @Autowired
     private InstituicaoRepository instituicaoRepository;
+    
+    @Autowired
+    private PerfilRepository perfilRepository;
     
     public List<InstituicaoDTO> listarTodas() {
         return instituicaoRepository.findAll().stream()
@@ -24,6 +29,24 @@ public class InstituicaoService {
     
     public List<InstituicaoDTO> listarPorTipo(String tipo) {
         return instituicaoRepository.findByTipo(tipo).stream()
+                .map(this::converterParaDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public List<InstituicaoDTO> listarPorPerfil(Long perfilId) {
+        Perfil perfil = perfilRepository.findById(perfilId)
+                .orElseThrow(() -> new RuntimeException("Perfil não encontrado"));
+        
+        return instituicaoRepository.findByPerfil(perfil).stream()
+                .map(this::converterParaDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public List<InstituicaoDTO> listarPorPerfilETipo(Long perfilId, String tipo) {
+        Perfil perfil = perfilRepository.findById(perfilId)
+                .orElseThrow(() -> new RuntimeException("Perfil não encontrado"));
+        
+        return instituicaoRepository.findByPerfilAndTipo(perfil, tipo).stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }

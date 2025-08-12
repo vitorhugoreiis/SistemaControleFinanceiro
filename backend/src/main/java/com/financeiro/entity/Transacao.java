@@ -3,6 +3,7 @@ package com.financeiro.entity;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -61,4 +62,20 @@ public class Transacao {
     @JoinColumn(name = "usuario_id")
     @NotNull(message = "O usuário é obrigatório")
     private Usuario usuario;
+    
+    @ManyToOne
+    @JoinColumn(name = "perfil_id")
+    @NotNull(message = "O perfil é obrigatório")
+    private Perfil perfil;
+    
+    @Column(name = "transferencia_entre_perfis")
+    private Boolean transferenciaEntrePerfis = false;
+    
+    @ManyToOne
+    @JoinColumn(name = "perfil_destino_id")
+    private Perfil perfilDestino;
+    
+    @ManyToOne
+    @JoinColumn(name = "transacao_relacionada_id")
+    private Transacao transacaoRelacionada;
 }
