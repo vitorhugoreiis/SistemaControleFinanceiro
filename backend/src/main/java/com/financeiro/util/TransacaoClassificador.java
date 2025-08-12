@@ -17,7 +17,7 @@ public class TransacaoClassificador {
     public static String classificarTransacao(Transacao transacao) {
         return switch(transacao) {
             // Pattern matching com guardas (when)
-            case Transacao t when t.getValor() > 1000.0 -> "Alto Valor";
+            case Transacao t when t.getValor().compareTo(new java.math.BigDecimal("1000.0")) > 0 -> "Alto Valor";
             case Transacao t when t.getCategoria() != null && 
                                t.getCategoria().getNome().equals("Investimento") -> "Investimento";
             case Transacao t when t.getDescricao().toLowerCase().contains("salário") -> "Renda";

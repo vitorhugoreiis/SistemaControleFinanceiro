@@ -48,9 +48,10 @@
       <h3>Receitas por Categoria</h3>
       <div *ngIf="receitasChartData && receitasChartData.labels.length > 0" class="chart">
         <canvas baseChart 
-          [data]="receitasChartData" 
-          [type]="'doughnut'" 
-          [options]="{responsive: true}">
+          [datasets]="receitasChartData.datasets"
+          [labels]="receitasChartData.labels"
+          [options]="{responsive: true}"
+          [type]="'doughnut'">
         </canvas>
       </div>
       <div *ngIf="!receitasChartData || receitasChartData.labels.length === 0" class="no-data">
@@ -62,9 +63,10 @@
       <h3>Despesas por Categoria</h3>
       <div *ngIf="despesasChartData && despesasChartData.labels.length > 0" class="chart">
         <canvas baseChart 
-          [data]="despesasChartData" 
-          [type]="'doughnut'" 
-          [options]="{responsive: true}">
+          [datasets]="despesasChartData.datasets"
+          [labels]="despesasChartData.labels"
+          [options]="{responsive: true}"
+          [type]="'doughnut'">
         </canvas>
       </div>
       <div *ngIf="!despesasChartData || despesasChartData.labels.length === 0" class="no-data">
@@ -76,9 +78,10 @@
       <h3>Balanço Financeiro</h3>
       <div class="chart">
         <canvas baseChart 
-          [data]="balanceChartData" 
-          [type]="'bar'" 
-          [options]="{responsive: true}">
+          [datasets]="balanceChartData.datasets"
+          [labels]="balanceChartData.labels"
+          [options]="{responsive: true}"
+          [type]="'bar'">
         </canvas>
       </div>
     </div>
