@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.financeiro.dto.LoginRequestDTO;
+import com.financeiro.dto.LoginResponseDTO;
 import com.financeiro.dto.UsuarioCadastroDTO;
 import com.financeiro.dto.UsuarioDTO;
 import com.financeiro.service.UsuarioService;
@@ -40,6 +42,11 @@ public class UsuarioController {
     @PostMapping
     public ResponseEntity<UsuarioDTO> cadastrar(@Valid @RequestBody UsuarioCadastroDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.cadastrar(dto));
+    }
+    
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
+        return ResponseEntity.ok(usuarioService.autenticar(loginRequest));
     }
     
     @PutMapping("/{id}")

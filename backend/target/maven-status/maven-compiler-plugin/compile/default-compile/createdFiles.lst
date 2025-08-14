@@ -1,6 +1,9 @@
 com\financeiro\dto\ResumoFinanceiroDTO$ResumoCategoria$ResumoCategoriaBuilder.class
+com\financeiro\dto\LoginResponseDTO$LoginResponseDTOBuilder.class
 com\financeiro\config\CorsConfig.class
+com\financeiro\dto\LoginRequestDTO.class
 com\financeiro\exception\GlobalExceptionHandler$Problema$Campo.class
+com\financeiro\security\JwtAuthenticationFilter.class
 com\financeiro\entity\Instituicao.class
 com\financeiro\repository\RegistroImportacaoRepository.class
 com\financeiro\controller\CategoriaController.class
@@ -8,6 +11,7 @@ com\financeiro\entity\RegistroImportacao.class
 com\financeiro\repository\CategoriaRepository.class
 com\financeiro\dto\ResumoFinanceiroDTO.class
 com\financeiro\repository\UsuarioRepository.class
+com\financeiro\config\SecurityConfig.class
 com\financeiro\exception\NegocioException.class
 com\financeiro\service\PerfilService.class
 com\financeiro\config\SwaggerConfig.class
@@ -15,6 +19,7 @@ com\financeiro\dto\RegistroImportacaoDTO.class
 com\financeiro\dto\TransacaoView.class
 com\financeiro\service\InstituicaoService.class
 com\financeiro\service\SubcategoriaService.class
+com\financeiro\dto\LoginResponseDTO.class
 com\financeiro\exception\RecursoNaoEncontradoException.class
 com\financeiro\controller\PerfilController.class
 com\financeiro\controller\TransacaoController.class
@@ -32,8 +37,10 @@ com\financeiro\entity\Transacao.class
 com\financeiro\repository\TransacaoRepository.class
 com\financeiro\controller\SubcategoriaController.class
 com\financeiro\service\RegistroImportacaoService.class
+com\financeiro\security\JwtService.class
 com\financeiro\service\CategoriaService.class
 com\financeiro\config\VirtualThreadConfig.class
+com\financeiro\security\CustomUserDetailsService.class
 com\financeiro\util\SequencedCollectionsExemplo.class
 com\financeiro\entity\Subcategoria.class
 com\financeiro\service\UsuarioService.class

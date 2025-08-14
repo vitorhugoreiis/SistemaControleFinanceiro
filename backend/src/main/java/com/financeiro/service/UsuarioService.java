@@ -5,12 +5,21 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.financeiro.dto.LoginRequestDTO;
+import com.financeiro.dto.LoginResponseDTO;
 import com.financeiro.dto.UsuarioCadastroDTO;
 import com.financeiro.dto.UsuarioDTO;
 import com.financeiro.entity.Usuario;
 import com.financeiro.repository.UsuarioRepository;
+import com.financeiro.security.JwtService;
 import com.financeiro.service.PerfilService;
 
 @Service
@@ -21,6 +30,15 @@ public class UsuarioService {
     
     @Autowired
     private PerfilService perfilService;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    
+    @Autowired
+    private JwtService jwtService;
     
     public List<UsuarioDTO> listarTodos() {
         return usuarioRepository.findAll().stream()
@@ -51,7 +69,7 @@ public class UsuarioService {
         Usuario usuario = new Usuario();
         usuario.setNome(dto.getNome());
         usuario.setEmail(dto.getEmail());
-        usuario.setSenhaHash(dto.getSenha()); // Em uma aplicação real, a senha deve ser criptografada
+        usuario.setSenhaHash(passwordEncoder.encode(dto.getSenha())); // Agora a senha é criptografada
         
         usuario = usuarioRepository.save(usuario);
         
@@ -59,6 +77,26 @@ public class UsuarioService {
         perfilService.criarPerfilPadrao(usuario);
         
         return converterParaDTO(usuario);
+    }
+    
+    public LoginResponseDTO autenticar(LoginRequestDTO loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getSenha())
+        );
+        
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        
+        Usuario usuario = usuarioRepository.findByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        
+        // Modificar esta linha para garantir que estamos passando um UserDetails
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String jwt = jwtService.generateToken(userDetails);
+        
+        return LoginResponseDTO.builder()
+                .token(jwt)
+                .usuario(converterParaDTO(usuario))
+                .build();
     }
     
     public UsuarioDTO atualizar(Long id, UsuarioDTO dto) {
