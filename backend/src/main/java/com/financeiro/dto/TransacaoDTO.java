@@ -53,4 +53,13 @@ public class TransacaoDTO {
     private String instituicaoNome;
     private String perfilNome;
     private String perfilDestinoNome;
+    
+    // Campos para parcelamento
+    private Integer parcelaAtual;
+    private Integer totalParcelas;
+    private String grupoParcelamento;
+    private Boolean ehParcelada = false;
+    
+    // Campo adicional para criação de parcelamentos
+    private Integer numeroParcelas; // Usado apenas na criação
 }

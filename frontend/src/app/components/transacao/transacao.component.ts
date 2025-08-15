@@ -54,16 +54,49 @@ export class TransacaoComponent implements OnInit {
       descricao: ['', [Validators.required, Validators.minLength(3)]],
       valor: ['', [Validators.required, Validators.min(0.01)]],
       data: ['', [Validators.required]],
-      tipo: ['DESPESA', [Validators.required]],
+      tipo: ['Despesa', [Validators.required]],
       categoriaId: ['', [Validators.required]],
       subcategoriaId: [''],
       instituicaoId: ['', [Validators.required]],
-      observacao: ['']
+      observacao: [''],
+      ehParcelada: [false],
+      numeroParcelas: ['', []],
+      valorPorParcela: ['', []]
+    });
+    
+    // Configurar validação condicional para parcelamento
+    this.transacaoForm.get('ehParcelada')?.valueChanges.subscribe(ehParcelada => {
+      const numeroParcelasControl = this.transacaoForm.get('numeroParcelas');
+      const valorPorParcelaControl = this.transacaoForm.get('valorPorParcela');
+      
+      if (ehParcelada) {
+        numeroParcelasControl?.setValidators([Validators.required, Validators.min(2), Validators.max(60)]);
+      } else {
+        numeroParcelasControl?.clearValidators();
+        numeroParcelasControl?.setValue('');
+        valorPorParcelaControl?.setValue('');
+      }
+      numeroParcelasControl?.updateValueAndValidity();
+    });
+
+    // Observar mudanças no número de parcelas para calcular valor total
+    this.transacaoForm.get('numeroParcelas')?.valueChanges.subscribe(() => {
+      this.calcularValorTotal();
+    });
+
+    // Observar mudanças no valor por parcela para calcular valor total
+    this.transacaoForm.get('valorPorParcela')?.valueChanges.subscribe(() => {
+      this.calcularValorTotal();
+    });
+
+    // Observar mudanças no valor total para calcular valor por parcela
+    this.transacaoForm.get('valor')?.valueChanges.subscribe(() => {
+      this.calcularValorPorParcela();
     });
 
     this.categoriaForm = this.formBuilder.group({
       nome: ['', [Validators.required, Validators.minLength(2)]],
-      tipo: ['DESPESA', [Validators.required]]
+      tipo: ['Despesa', [Validators.required]]
     });
 
     this.subcategoriaForm = this.formBuilder.group({
@@ -75,7 +108,6 @@ export class TransacaoComponent implements OnInit {
   ngOnInit(): void {
     this.carregarPerfilPadrao();
     this.carregarDados();
-    this.carregarTransacoes();
     
     // Observar mudanças na categoria para filtrar subcategorias
     this.transacaoForm.get('categoriaId')?.valueChanges.subscribe(categoriaId => {
@@ -96,6 +128,8 @@ export class TransacaoComponent implements OnInit {
           // Pegar o primeiro perfil (perfil padrão)
           if (perfis.length > 0) {
             this.perfilAtual = perfis[0];
+            // Carregar transações após o perfil ser carregado
+            this.carregarTransacoes();
           }
         },
         error: (error) => {
@@ -140,7 +174,8 @@ export class TransacaoComponent implements OnInit {
 
   carregarTransacoes(): void {
     this.loading = true;
-    this.transacaoService.listar().subscribe({
+    // Usar o mesmo método de filtro, mas sem filtros específicos
+    this.transacaoService.listarComFiltros(this.perfilAtual?.id).subscribe({
       next: (transacoes) => {
         this.transacoes = transacoes.sort((a, b) => 
           new Date(b.data).getTime() - new Date(a.data).getTime()
@@ -170,14 +205,22 @@ export class TransacaoComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
+    const formValue = this.transacaoForm.value;
     const transacaoData = {
-      ...this.transacaoForm.value,
-      categoriaId: parseInt(this.transacaoForm.value.categoriaId),
-      subcategoriaId: this.transacaoForm.value.subcategoriaId ? parseInt(this.transacaoForm.value.subcategoriaId) : null,
-      instituicaoId: parseInt(this.transacaoForm.value.instituicaoId),
-      valor: parseFloat(this.transacaoForm.value.valor),
-      perfilId: this.perfilAtual.id
+      ...formValue,
+      categoriaId: parseInt(formValue.categoriaId),
+      subcategoriaId: formValue.subcategoriaId ? parseInt(formValue.subcategoriaId) : null,
+      instituicaoId: parseInt(formValue.instituicaoId),
+      valor: parseFloat(formValue.valor),
+      perfilId: this.perfilAtual.id,
+      ehParcelada: formValue.ehParcelada || false,
+      numeroParcelas: formValue.ehParcelada && formValue.numeroParcelas ? parseInt(formValue.numeroParcelas) : null
     };
+    
+    // Remover numeroParcelas se não for parcelada
+    if (!transacaoData.ehParcelada) {
+      delete transacaoData.numeroParcelas;
+    }
 
     console.log('Dados da transação:', transacaoData); // Para debug
 
@@ -220,6 +263,12 @@ export class TransacaoComponent implements OnInit {
       this.carregarSubcategoriasPorCategoria(transacao.categoriaId);
     }
     
+    // Calcular valor por parcela se for parcelada
+    let valorPorParcela = '';
+    if (transacao.ehParcelada && transacao.totalParcelas && transacao.totalParcelas > 0) {
+      valorPorParcela = (transacao.valor / transacao.totalParcelas).toFixed(2);
+    }
+    
     this.transacaoForm.patchValue({
       descricao: transacao.descricao,
       valor: transacao.valor,
@@ -228,7 +277,10 @@ export class TransacaoComponent implements OnInit {
       categoriaId: transacao.categoriaId.toString(),
       subcategoriaId: transacao.subcategoriaId ? transacao.subcategoriaId.toString() : '',
       instituicaoId: transacao.instituicaoId.toString(),
-      observacao: transacao.observacao || ''
+      observacao: transacao.observacao || '',
+      ehParcelada: transacao.ehParcelada || false,
+      numeroParcelas: transacao.totalParcelas || '',
+      valorPorParcela: valorPorParcela
     });
   }
 
@@ -249,12 +301,70 @@ export class TransacaoComponent implements OnInit {
 
   resetForm(): void {
     this.transacaoForm.reset({
-      tipo: 'DESPESA',
-      data: new Date().toISOString().split('T')[0]
+      tipo: 'Despesa',
+      data: new Date().toISOString().split('T')[0],
+      ehParcelada: false,
+      numeroParcelas: '',
+      valorPorParcela: ''
     });
     this.editingTransacao = null;
     this.subcategorias = [];
     this.loading = false;
+  }
+  
+  onParcelamentoChange(): void {
+    const ehParcelada = this.transacaoForm.get('ehParcelada')?.value;
+    if (!ehParcelada) {
+      this.transacaoForm.get('numeroParcelas')?.setValue('');
+      this.transacaoForm.get('valorPorParcela')?.setValue('');
+    }
+  }
+  
+  private isCalculating = false; // Flag para evitar loops infinitos
+  
+  calcularValorTotal(): void {
+    if (this.isCalculating) return;
+    
+    const numeroParcelas = this.transacaoForm.get('numeroParcelas')?.value;
+    const valorPorParcela = this.transacaoForm.get('valorPorParcela')?.value;
+    const ehParcelada = this.transacaoForm.get('ehParcelada')?.value;
+    
+    if (ehParcelada && numeroParcelas && valorPorParcela && numeroParcelas > 0 && valorPorParcela > 0) {
+      this.isCalculating = true;
+      const valorTotal = numeroParcelas * valorPorParcela;
+      this.transacaoForm.get('valor')?.setValue(valorTotal.toFixed(2), { emitEvent: false });
+      this.isCalculating = false;
+    }
+  }
+  
+  calcularValorPorParcela(): void {
+    if (this.isCalculating) return;
+    
+    const valor = this.transacaoForm.get('valor')?.value;
+    const numeroParcelas = this.transacaoForm.get('numeroParcelas')?.value;
+    const ehParcelada = this.transacaoForm.get('ehParcelada')?.value;
+    
+    if (ehParcelada && valor && numeroParcelas && numeroParcelas > 0 && valor > 0) {
+      this.isCalculating = true;
+      const valorParcela = valor / numeroParcelas;
+      this.transacaoForm.get('valorPorParcela')?.setValue(valorParcela.toFixed(2), { emitEvent: false });
+      this.isCalculating = false;
+    }
+  }
+  
+  calcularValorParcela(): string {
+    const valor = this.transacaoForm.get('valor')?.value;
+    const numeroParcelas = this.transacaoForm.get('numeroParcelas')?.value;
+    
+    if (valor && numeroParcelas && numeroParcelas > 0) {
+      const valorParcela = valor / numeroParcelas;
+      return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      }).format(valorParcela);
+    }
+    
+    return 'R$ 0,00';
   }
 
   cancelarEdicao(): void {
@@ -263,6 +373,13 @@ export class TransacaoComponent implements OnInit {
 
   filtrarTransacoes(): void {
     this.loading = true;
+    
+    // Verificar se o perfil foi carregado
+    if (!this.perfilAtual || !this.perfilAtual.id) {
+      this.errorMessage = 'Erro: Perfil não carregado. Tente recarregar a página.';
+      this.loading = false;
+      return;
+    }
     
     // Se não há filtros, carregar todas as transações
     if ((!this.filtroTipo || this.filtroTipo === '') && (!this.filtroCategoria || this.filtroCategoria === '')) {
@@ -275,7 +392,7 @@ export class TransacaoComponent implements OnInit {
     const categoriaFiltro = this.filtroCategoria && this.filtroCategoria !== '' ? this.filtroCategoria : undefined;
 
     // Usar o endpoint principal com parâmetros de query
-    this.transacaoService.listarComFiltros(this.perfilAtual?.id, tipoFiltro, categoriaFiltro).subscribe({
+    this.transacaoService.listarComFiltros(this.perfilAtual.id, tipoFiltro, categoriaFiltro).subscribe({
       next: (transacoes) => {
         this.transacoes = transacoes.sort((a, b) => 
           new Date(b.data).getTime() - new Date(a.data).getTime()
@@ -305,7 +422,7 @@ export class TransacaoComponent implements OnInit {
   abrirModalNovaCategoria(): void {
     this.categoriaForm.reset();
     this.categoriaForm.patchValue({
-      tipo: this.transacaoForm.get('tipo')?.value || 'DESPESA'
+      tipo: this.transacaoForm.get('tipo')?.value || 'Despesa'
     });
     this.mostrarModalCategoria = true;
   }

@@ -24,7 +24,17 @@ export class SidebarComponent {
   public router: Router;
   menuItems: MenuItem[] = [
     { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
-    { label: 'Lançamentos', icon: 'swap_horiz', route: '/transacoes' },
+    { 
+      label: 'Lançamentos', 
+      icon: 'swap_horiz', 
+      route: '/transacoes',
+      hasSubmenu: true,
+      showSubmenu: false,
+      submenuItems: [
+        { label: 'Novo Lançamento', icon: 'add', route: '/transacoes' },
+        { label: 'Visualizar Lançamentos', icon: 'list', route: '/transacoes/visualizar' }
+      ]
+    },
     { 
       label: 'Categorias', 
       icon: 'category', 

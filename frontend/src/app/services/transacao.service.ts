@@ -16,7 +16,7 @@ export class TransacaoService {
     return this.http.get<Transacao[]>(this.apiUrl);
   }
 
-  listarPorTipo(tipo: 'RECEITA' | 'DESPESA'): Observable<Transacao[]> {
+  listarPorTipo(tipo: 'Receita' | 'Despesa'): Observable<Transacao[]> {
     return this.http.get<Transacao[]>(`${this.apiUrl}/tipo/${tipo}`);
   }
 

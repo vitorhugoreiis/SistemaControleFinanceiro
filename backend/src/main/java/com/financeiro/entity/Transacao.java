@@ -78,4 +78,17 @@ public class Transacao {
     @ManyToOne
     @JoinColumn(name = "transacao_relacionada_id")
     private Transacao transacaoRelacionada;
+    
+    // Campos para parcelamento
+    @Column(name = "parcela_atual")
+    private Integer parcelaAtual;
+    
+    @Column(name = "total_parcelas")
+    private Integer totalParcelas;
+    
+    @Column(name = "grupo_parcelamento")
+    private String grupoParcelamento; // UUID para agrupar parcelas da mesma transação
+    
+    @Column(name = "eh_parcelada")
+    private Boolean ehParcelada = false;
 }

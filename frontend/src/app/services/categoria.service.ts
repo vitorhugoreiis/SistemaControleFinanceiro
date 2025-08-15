@@ -16,7 +16,7 @@ export class CategoriaService {
     return this.http.get<Categoria[]>(this.apiUrl);
   }
 
-  listarPorTipo(tipo: 'RECEITA' | 'DESPESA'): Observable<Categoria[]> {
+  listarPorTipo(tipo: 'Receita' | 'Despesa'): Observable<Categoria[]> {
     return this.http.get<Categoria[]>(`${this.apiUrl}/tipo/${tipo}`);
   }
 

@@ -9,6 +9,7 @@ import { TransacaoComponent } from './components/transacao/transacao.component';
 import { InstituicaoComponent } from './components/instituicao/instituicao.component';
 import { ImportacaoComponent } from './components/importacao/importacao.component';
 import { PerfilComponent } from './components/perfil/perfil.component';
+import { VisualizarTransacoesComponent } from './components/visualizar-transacoes/visualizar-transacoes.component';
 import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
@@ -19,6 +20,7 @@ const routes: Routes = [
   { path: 'categorias', component: CategoriaComponent, canActivate: [AuthGuard] },
   { path: 'subcategorias', component: SubcategoriaComponent, canActivate: [AuthGuard] },
   { path: 'transacoes', component: TransacaoComponent, canActivate: [AuthGuard] },
+  { path: 'transacoes/visualizar', component: VisualizarTransacoesComponent, canActivate: [AuthGuard] },
   { path: 'instituicoes', component: InstituicaoComponent, canActivate: [AuthGuard] },
   { path: 'importacoes', component: ImportacaoComponent, canActivate: [AuthGuard] },
   { path: 'perfil', component: PerfilComponent, canActivate: [AuthGuard] },

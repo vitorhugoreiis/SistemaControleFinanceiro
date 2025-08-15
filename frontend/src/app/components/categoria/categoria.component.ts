@@ -22,7 +22,7 @@ export class CategoriaComponent implements OnInit {
   ) {
     this.categoriaForm = this.formBuilder.group({
       nome: ['', [Validators.required, Validators.minLength(2)]],
-      tipo: ['DESPESA', [Validators.required]]
+      tipo: ['Despesa', [Validators.required]]
     });
   }
 
@@ -112,7 +112,7 @@ export class CategoriaComponent implements OnInit {
 
   resetForm(): void {
     this.categoriaForm.reset({
-      tipo: 'DESPESA'
+      tipo: 'Despesa'
     });
     this.editingCategoria = null;
     this.loading = false;

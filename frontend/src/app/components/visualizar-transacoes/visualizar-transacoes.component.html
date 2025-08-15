@@ -1,0 +1,232 @@
+<div class="visualizar-transacoes">
+  <div class="header">
+    <h2>Visualizar Lançamentos</h2>
+    <div class="view-controls">
+      <button 
+        class="btn-view" 
+        [class.active]="modoVisualizacao === 'tabela'"
+        (click)="alterarModoVisualizacao('tabela')">
+        <span class="material-icons">table_view</span>
+        Tabela
+      </button>
+      <button 
+        class="btn-view" 
+        [class.active]="modoVisualizacao === 'cards'"
+        (click)="alterarModoVisualizacao('cards')">
+        <span class="material-icons">view_module</span>
+        Cards
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-section">
+    <h3>Filtros</h3>
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label>Tipo:</label>
+        <select [(ngModel)]="filtroTipo" (change)="aplicarFiltros()">
+          <option value="">Todos os tipos</option>
+          <option value="Receita">Receita</option>
+          <option value="Despesa">Despesa</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Categoria:</label>
+        <select [(ngModel)]="filtroCategoria" (change)="aplicarFiltros()">
+          <option [value]="null">Todas as categorias</option>
+          <option *ngFor="let categoria of categorias" [value]="categoria.id">
+            {{ categoria.nome }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Instituição:</label>
+        <select [(ngModel)]="filtroInstituicao" (change)="aplicarFiltros()">
+          <option [value]="null">Todas as instituições</option>
+          <option *ngFor="let instituicao of instituicoes" [value]="instituicao.id">
+            {{ instituicao.nome }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Data Início:</label>
+        <input type="date" [(ngModel)]="filtroDataInicio" (change)="aplicarFiltros()">
+      </div>
+
+      <div class="filter-group">
+        <label>Data Fim:</label>
+        <input type="date" [(ngModel)]="filtroDataFim" (change)="aplicarFiltros()">
+      </div>
+
+      <div class="filter-group">
+        <label>Valor Mínimo:</label>
+        <input type="number" [(ngModel)]="filtroValorMin" (input)="aplicarFiltros()" placeholder="R$ 0,00">
+      </div>
+
+      <div class="filter-group">
+        <label>Valor Máximo:</label>
+        <input type="number" [(ngModel)]="filtroValorMax" (input)="aplicarFiltros()" placeholder="R$ 0,00">
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn-clear" (click)="limparFiltros()">
+          <span class="material-icons">clear</span>
+          Limpar Filtros
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resultados -->
+  <div class="results-section">
+    <div class="results-header">
+      <p class="results-count">{{ totalItens }} lançamento(s) encontrado(s)</p>
+      <div class="items-per-page">
+        <label>Itens por página:</label>
+        <select [(ngModel)]="itensPorPagina" (change)="aplicarFiltros()">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+      <p>Carregando...</p>
+    </div>
+
+    <!-- Visualização em Tabela -->
+    <div *ngIf="!loading && modoVisualizacao === 'tabela'" class="table-view">
+      <table class="transactions-table">
+        <thead>
+          <tr>
+            <th (click)="alterarOrdenacao('data')" class="sortable">
+              Data
+              <span class="material-icons sort-icon" 
+                    *ngIf="campoOrdenacao === 'data'">
+                {{ direcaoOrdenacao === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+              </span>
+            </th>
+            <th (click)="alterarOrdenacao('descricao')" class="sortable">
+              Descrição
+              <span class="material-icons sort-icon" 
+                    *ngIf="campoOrdenacao === 'descricao'">
+                {{ direcaoOrdenacao === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+              </span>
+            </th>
+            <th (click)="alterarOrdenacao('categoria')" class="sortable">
+              Categoria
+              <span class="material-icons sort-icon" 
+                    *ngIf="campoOrdenacao === 'categoria'">
+                {{ direcaoOrdenacao === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+              </span>
+            </th>
+            <th (click)="alterarOrdenacao('tipo')" class="sortable">
+              Tipo
+              <span class="material-icons sort-icon" 
+                    *ngIf="campoOrdenacao === 'tipo'">
+                {{ direcaoOrdenacao === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+              </span>
+            </th>
+            <th (click)="alterarOrdenacao('valor')" class="sortable">
+              Valor
+              <span class="material-icons sort-icon" 
+                    *ngIf="campoOrdenacao === 'valor'">
+                {{ direcaoOrdenacao === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+              </span>
+            </th>
+            <th>Instituição</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let transacao of transacoesPaginadas" 
+              [class.receita]="transacao.tipo === 'Receita'"
+              [class.despesa]="transacao.tipo === 'Despesa'">
+            <td>{{ formatarData(transacao.data) }}</td>
+            <td>{{ transacao.descricao }}</td>
+            <td>{{ transacao.categoriaNome || '-' }}</td>
+            <td>
+              <span class="tipo-badge" [class]="transacao.tipo.toLowerCase()">
+                {{ transacao.tipo }}
+              </span>
+            </td>
+            <td class="valor" [class]="transacao.tipo.toLowerCase()">
+              {{ formatarValor(transacao.valor) }}
+              <span *ngIf="transacao.ehParcelada" class="parcela-badge">{{ transacao.parcelaAtual }}/{{ transacao.totalParcelas }}</span>
+            </td>
+            <td>{{ transacao.instituicaoNome || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Visualização em Cards -->
+    <div *ngIf="!loading && modoVisualizacao === 'cards'" class="cards-view">
+      <div class="transaction-card" 
+           *ngFor="let transacao of transacoesPaginadas"
+           [class.receita]="transacao.tipo === 'Receita'"
+           [class.despesa]="transacao.tipo === 'Despesa'">
+        <div class="card-header">
+          <div class="card-date">{{ formatarData(transacao.data) }}</div>
+          <div class="card-type">
+            <span class="tipo-badge" [class]="transacao.tipo.toLowerCase()">
+              {{ transacao.tipo }}
+            </span>
+          </div>
+        </div>
+        <div class="card-content">
+          <h4 class="card-description">{{ transacao.descricao }}</h4>
+          <div class="card-details">
+            <div class="detail-item">
+              <span class="material-icons">category</span>
+              <span>{{ transacao.categoriaNome || 'Sem categoria' }}</span>
+            </div>
+            <div class="detail-item" *ngIf="transacao.instituicaoNome">
+              <span class="material-icons">account_balance</span>
+              <span>{{ transacao.instituicaoNome }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="card-value" [class]="transacao.tipo.toLowerCase()">
+            {{ formatarValor(transacao.valor) }}
+            <span *ngIf="transacao.ehParcelada" class="parcela-badge">{{ transacao.parcelaAtual }}/{{ transacao.totalParcelas }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensagem quando não há resultados -->
+    <div *ngIf="!loading && transacoesFiltradas.length === 0" class="no-results">
+      <span class="material-icons">search_off</span>
+      <p>Nenhum lançamento encontrado com os filtros aplicados.</p>
+    </div>
+
+    <!-- Paginação -->
+    <div *ngIf="!loading && totalPaginas > 1" class="pagination">
+      <button 
+        class="btn-page" 
+        [disabled]="paginaAtual === 1"
+        (click)="irParaPagina(paginaAtual - 1)">
+        <span class="material-icons">chevron_left</span>
+      </button>
+      
+      <span class="page-info">
+        Página {{ paginaAtual }} de {{ totalPaginas }}
+      </span>
+      
+      <button 
+        class="btn-page" 
+        [disabled]="paginaAtual === totalPaginas"
+        (click)="irParaPagina(paginaAtual + 1)">
+        <span class="material-icons">chevron_right</span>
+      </button>
+    </div>
+  </div>
+</div>

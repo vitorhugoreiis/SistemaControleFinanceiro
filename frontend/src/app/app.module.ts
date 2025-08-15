@@ -17,6 +17,7 @@ import { TransacaoComponent } from './components/transacao/transacao.component';
 import { InstituicaoComponent } from './components/instituicao/instituicao.component';
 import { ImportacaoComponent } from './components/importacao/importacao.component';
 import { PerfilComponent } from './components/perfil/perfil.component';
+import { VisualizarTransacoesComponent } from './components/visualizar-transacoes/visualizar-transacoes.component';
 
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 
@@ -36,6 +37,7 @@ import { FilterPipe } from './pipes/filter.pipe';
     InstituicaoComponent,
     ImportacaoComponent,
     PerfilComponent,
+    VisualizarTransacoesComponent,
     FilterPipe
   ],
   imports: [

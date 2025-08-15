@@ -49,6 +49,73 @@
         </div>
       </div>
 
+      <!-- Seção de Parcelamento -->
+      <div class="parcelamento-section">
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="ehParcelada" (change)="onParcelamentoChange()">
+            <span class="checkmark"></span>
+            Parcelar este lançamento
+          </label>
+        </div>
+
+        <div *ngIf="transacaoForm.get('ehParcelada')?.value" class="parcelamento-details">
+           <div class="form-row">
+             <div class="form-group">
+               <label for="numeroParcelas">
+                 Número de Parcelas *
+                 <span class="info-icon" title="Informações do Parcelamento:
+• As parcelas serão criadas mensalmente a partir da data selecionada
+• Cada parcela terá o mesmo valor (divisão igualitária)
+• Apenas a primeira parcela afetará o saldo imediatamente
+• As demais parcelas serão registradas para controle futuro
+• Você pode inserir o valor por parcela para calcular o total automaticamente">ℹ️</span>
+               </label>
+               <input
+                 type="number"
+                 id="numeroParcelas"
+                 formControlName="numeroParcelas"
+                 placeholder="Ex: 12"
+                 min="2"
+                 max="60"
+                 [class.error]="transacaoForm.get('numeroParcelas')?.invalid && transacaoForm.get('numeroParcelas')?.touched"
+               >
+               <div *ngIf="transacaoForm.get('numeroParcelas')?.invalid && transacaoForm.get('numeroParcelas')?.touched" class="error-message">
+                 <span *ngIf="transacaoForm.get('numeroParcelas')?.errors?.['required']">Número de parcelas é obrigatório</span>
+                 <span *ngIf="transacaoForm.get('numeroParcelas')?.errors?.['min']">Mínimo de 2 parcelas</span>
+                 <span *ngIf="transacaoForm.get('numeroParcelas')?.errors?.['max']">Máximo de 60 parcelas</span>
+               </div>
+             </div>
+ 
+             <div class="form-group">
+               <label for="valorPorParcela">
+                 Valor por Parcela
+                 <small class="field-hint">(opcional - calcula o valor total)</small>
+               </label>
+               <input
+                 type="number"
+                 id="valorPorParcela"
+                 formControlName="valorPorParcela"
+                 placeholder="Ex: 150,00"
+                 step="0.01"
+                 min="0.01"
+               >
+               <small class="help-text">💡 Dica: Insira o valor por parcela para calcular automaticamente o valor total</small>
+             </div>
+           </div>
+           
+           <div class="form-group" *ngIf="transacaoForm.get('numeroParcelas')?.value && transacaoForm.get('valor')?.value">
+             <label>Resumo do Parcelamento</label>
+             <div class="parcelamento-resumo">
+               <span class="resumo-item">
+                 <strong>{{transacaoForm.get('numeroParcelas')?.value}}x</strong> de 
+                 <strong>{{calcularValorParcela()}}</strong>
+               </span>
+             </div>
+           </div>
+         </div>
+      </div>
+
       <div class="form-row">
         <div class="form-group">
           <label for="data">Data *</label>
@@ -66,8 +133,8 @@
         <div class="form-group">
           <label for="tipo">Tipo *</label>
           <select id="tipo" formControlName="tipo">
-            <option value="RECEITA">Receita</option>
-            <option value="DESPESA">Despesa</option>
+            <option value="Receita">Receita</option>
+            <option value="Despesa">Despesa</option>
           </select>
         </div>
       </div>
@@ -151,8 +218,8 @@
         <label for="filtroTipo">Filtrar por Tipo</label>
         <select id="filtroTipo" [(ngModel)]="filtroTipo" (change)="filtrarTransacoes()">
           <option value="">Todos os tipos</option>
-          <option value="RECEITA">Receita</option>
-          <option value="DESPESA">Despesa</option>
+          <option value="Receita">Receita</option>
+          <option value="Despesa">Despesa</option>
         </select>
       </div>
       <div class="form-group">
@@ -207,6 +274,10 @@
           <div class="detail-item" *ngIf="transacao.observacao">
             <strong>Observação:</strong> {{ transacao.observacao }}
           </div>
+          <div class="detail-item" *ngIf="transacao.ehParcelada">
+            <strong>Parcelamento:</strong> 
+            <span class="parcela-badge">{{ transacao.parcelaAtual }}/{{ transacao.totalParcelas }}</span>
+          </div>
         </div>
         
         <div class="transacao-actions">
@@ -248,8 +319,8 @@
         <div class="form-group">
           <label for="categoriaTipo">Tipo *</label>
           <select id="categoriaTipo" formControlName="tipo">
-            <option value="RECEITA">Receita</option>
-            <option value="DESPESA">Despesa</option>
+            <option value="Receita">Receita</option>
+            <option value="Despesa">Despesa</option>
           </select>
         </div>
       </div>

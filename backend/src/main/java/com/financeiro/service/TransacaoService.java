@@ -166,6 +166,11 @@ public class TransacaoService {
             return criarTransferenciaEntrePerfis(dto, usuario);
         }
         
+        // Se for uma transação parcelada, criar múltiplas transações
+        if (dto.getNumeroParcelas() != null && dto.getNumeroParcelas() > 1) {
+            return criarTransacaoParcelada(dto, usuario, perfil);
+        }
+        
         Categoria categoria = categoriaRepository.findById(dto.getCategoriaId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria", dto.getCategoriaId()));
         
@@ -346,6 +351,12 @@ public class TransacaoService {
             dto.setTransacaoRelacionadaId(transacao.getTransacaoRelacionada().getId());
         }
         
+        // Campos de parcelamento
+        dto.setParcelaAtual(transacao.getParcelaAtual());
+        dto.setTotalParcelas(transacao.getTotalParcelas());
+        dto.setGrupoParcelamento(transacao.getGrupoParcelamento());
+        dto.setEhParcelada(transacao.getEhParcelada());
+        
         return dto;
     }
     
@@ -408,6 +419,54 @@ public class TransacaoService {
         
         // Retornar a transação de saída como resultado
         return converterParaDTO(transacaoSaida);
+    }
+    
+    @Transactional
+    private TransacaoDTO criarTransacaoParcelada(TransacaoDTO dto, Usuario usuario, Perfil perfil) {
+        String grupoParcelamento = java.util.UUID.randomUUID().toString();
+        BigDecimal valorParcela = dto.getValor().divide(new BigDecimal(dto.getNumeroParcelas()), 2, java.math.RoundingMode.HALF_UP);
+        
+        Categoria categoria = categoriaRepository.findById(dto.getCategoriaId())
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria", dto.getCategoriaId()));
+        
+        Subcategoria subcategoria = null;
+        if (dto.getSubcategoriaId() != null) {
+            subcategoria = subcategoriaRepository.findById(dto.getSubcategoriaId())
+                    .orElseThrow(() -> new RecursoNaoEncontradoException("Subcategoria", dto.getSubcategoriaId()));
+        }
+        
+        Instituicao instituicao = instituicaoRepository.findById(dto.getInstituicaoId())
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Instituição", dto.getInstituicaoId()));
+        
+        Transacao primeiraParcela = null;
+        
+        for (int i = 1; i <= dto.getNumeroParcelas(); i++) {
+            Transacao transacao = new Transacao();
+            transacao.setData(dto.getData().plusMonths(i - 1)); // Cada parcela no mês seguinte
+            transacao.setDescricao(dto.getDescricao() + " (" + i + "/" + dto.getNumeroParcelas() + ")");
+            transacao.setValor(valorParcela);
+            transacao.setTipo(dto.getTipo());
+            transacao.setCategoria(categoria);
+            transacao.setSubcategoria(subcategoria);
+            transacao.setInstituicao(instituicao);
+            transacao.setUsuario(usuario);
+            transacao.setPerfil(perfil);
+            transacao.setParcelaAtual(i);
+            transacao.setTotalParcelas(dto.getNumeroParcelas());
+            transacao.setGrupoParcelamento(grupoParcelamento);
+            transacao.setEhParcelada(true);
+            
+            transacao = transacaoRepository.save(transacao);
+            
+            // Atualizar o saldo da instituição apenas para a primeira parcela
+            // (as outras serão processadas quando vencerem)
+            if (i == 1) {
+                atualizarSaldoInstituicao(instituicao, valorParcela, dto.getTipo());
+                primeiraParcela = transacao;
+            }
+        }
+        
+        return converterParaDTO(primeiraParcela);
     }
     
     public ResumoFinanceiroDTO gerarResumoFinanceiro(Long usuarioId, LocalDate dataInicio, LocalDate dataFim) {

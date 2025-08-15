@@ -3,7 +3,7 @@ export interface Transacao {
     descricao: string;
     valor: number;
     data: string;
-    tipo: 'RECEITA' | 'DESPESA';
+    tipo: 'Receita' | 'Despesa';
     categoriaId: number;
     categoriaNome?: string;
     subcategoriaId?: number;
@@ -13,4 +13,11 @@ export interface Transacao {
     usuarioId?: number;
     perfilId?: number;
     observacao?: string;
+    
+    // Campos para parcelamento
+    parcelaAtual?: number;
+    totalParcelas?: number;
+    grupoParcelamento?: string;
+    ehParcelada?: boolean;
+    numeroParcelas?: number; // Usado apenas na criação
 }
