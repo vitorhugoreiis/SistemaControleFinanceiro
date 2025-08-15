@@ -34,11 +34,20 @@ public class TransacaoController {
             @RequestParam(required = false) Long usuarioId,
             @RequestParam(required = false) Long perfilId,
             @RequestParam(required = false) String tipo,
+            @RequestParam(required = false) Long categoriaId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim) {
         
+        if (perfilId != null && tipo != null && categoriaId != null) {
+            return ResponseEntity.ok(transacaoService.listarPorPerfilTipoECategoria(perfilId, tipo, categoriaId));
+        }
+        
         if (perfilId != null && tipo != null) {
             return ResponseEntity.ok(transacaoService.listarPorPerfilETipo(perfilId, tipo));
+        }
+        
+        if (perfilId != null && categoriaId != null) {
+            return ResponseEntity.ok(transacaoService.listarPorPerfilECategoria(perfilId, categoriaId));
         }
         
         if (perfilId != null && dataInicio != null && dataFim != null) {
@@ -83,7 +92,7 @@ public class TransacaoController {
             @RequestParam(required = false) Long usuarioId,
             @RequestParam(required = false) Long perfilId) {
         if (perfilId != null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(transacaoService.salvar(dto, perfilId));
+            return ResponseEntity.status(HttpStatus.CREATED).body(transacaoService.salvarPorPerfil(dto, perfilId));
         } else {
             return ResponseEntity.status(HttpStatus.CREATED).body(transacaoService.salvar(dto, usuarioId));
         }

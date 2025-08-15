@@ -19,6 +19,30 @@ export class DashboardComponent implements OnInit {
   despesasChartData: any;
   balanceChartData: any;
   
+  // Para controle das abas
+  activeTab: string = 'receitas';
+  
+  // Opções para gráficos de barra
+  barChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: function(value: any) {
+            return 'R$ ' + value.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+          }
+        }
+      }
+    }
+  };
+  
   constructor(
     private formBuilder: FormBuilder,
     private resumoFinanceiroService: ResumoFinanceiroService
@@ -60,40 +84,50 @@ export class DashboardComponent implements OnInit {
     if (!this.resumoFinanceiro) return;
     
     // Dados para gráfico de receitas por categoria
-    const receitasCategorias = this.resumoFinanceiro.resumoCategorias
-      .filter(cat => cat.tipo === 'RECEITA')
+    const receitasCategorias = this.resumoFinanceiro.resumoPorCategoria
+      .filter(cat => cat.tipo === 'Receita')
       .map(cat => cat.categoriaNome);
       
-    const receitasValores = this.resumoFinanceiro.resumoCategorias
-      .filter(cat => cat.tipo === 'RECEITA')
+    const receitasValores = this.resumoFinanceiro.resumoPorCategoria
+      .filter(cat => cat.tipo === 'Receita')
       .map(cat => cat.valor);
     
     this.receitasChartData = {
       labels: receitasCategorias,
       datasets: [{
+        label: 'Receitas',
         data: receitasValores,
         backgroundColor: [
           '#4caf50', '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107', '#ff9800', '#ff5722'
-        ]
+        ],
+        borderColor: [
+          '#4caf50', '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107', '#ff9800', '#ff5722'
+        ],
+        borderWidth: 1
       }]
     };
     
     // Dados para gráfico de despesas por categoria
-    const despesasCategorias = this.resumoFinanceiro.resumoCategorias
-      .filter(cat => cat.tipo === 'DESPESA')
+    const despesasCategorias = this.resumoFinanceiro.resumoPorCategoria
+      .filter(cat => cat.tipo === 'Despesa')
       .map(cat => cat.categoriaNome);
       
-    const despesasValores = this.resumoFinanceiro.resumoCategorias
-      .filter(cat => cat.tipo === 'DESPESA')
+    const despesasValores = this.resumoFinanceiro.resumoPorCategoria
+      .filter(cat => cat.tipo === 'Despesa')
       .map(cat => cat.valor);
     
     this.despesasChartData = {
       labels: despesasCategorias,
       datasets: [{
+        label: 'Despesas',
         data: despesasValores,
         backgroundColor: [
           '#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4'
-        ]
+        ],
+        borderColor: [
+          '#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4'
+        ],
+        borderWidth: 1
       }]
     };
     
@@ -123,5 +157,10 @@ export class DashboardComponent implements OnInit {
       style: 'currency',
       currency: 'BRL'
     });
+  }
+  
+  // Método para alternar entre abas
+  openTab(tabName: string): void {
+    this.activeTab = tabName;
   }
 }

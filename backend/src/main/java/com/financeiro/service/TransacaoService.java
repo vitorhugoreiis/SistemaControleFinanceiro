@@ -132,11 +132,62 @@ public class TransacaoService {
         transacao.setUsuario(usuario);
         
         // Adicionar informações de perfil
+        Perfil perfil;
         if (dto.getPerfilId() != null) {
-            Perfil perfil = perfilRepository.findById(dto.getPerfilId())
+            perfil = perfilRepository.findById(dto.getPerfilId())
                     .orElseThrow(() -> new RecursoNaoEncontradoException("Perfil", dto.getPerfilId()));
-            transacao.setPerfil(perfil);
+        } else {
+            // Se não foi especificado um perfil, usar o primeiro perfil do usuário
+            List<Perfil> perfis = perfilRepository.findByUsuario(usuario);
+            if (perfis.isEmpty()) {
+                throw new RuntimeException("Usuário não possui perfis configurados");
+            }
+            perfil = perfis.get(0); // Usar o primeiro perfil como padrão
         }
+        transacao.setPerfil(perfil);
+        
+        transacao = transacaoRepository.save(transacao);
+        
+        // Atualizar o saldo da instituição
+        atualizarSaldoInstituicao(instituicao, dto.getValor(), dto.getTipo());
+        
+        return converterParaDTO(transacao);
+    }
+    
+    @Transactional
+    public TransacaoDTO salvarPorPerfil(TransacaoDTO dto, Long perfilId) {
+        Perfil perfil = perfilRepository.findById(perfilId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Perfil", perfilId));
+        
+        Usuario usuario = perfil.getUsuario();
+        
+        // Se for uma transferência entre perfis, criar duas transações vinculadas
+        if (Boolean.TRUE.equals(dto.getTransferenciaEntrePerfis()) && dto.getPerfilDestinoId() != null) {
+            return criarTransferenciaEntrePerfis(dto, usuario);
+        }
+        
+        Categoria categoria = categoriaRepository.findById(dto.getCategoriaId())
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria", dto.getCategoriaId()));
+        
+        Subcategoria subcategoria = null;
+        if (dto.getSubcategoriaId() != null) {
+            subcategoria = subcategoriaRepository.findById(dto.getSubcategoriaId())
+                    .orElseThrow(() -> new RecursoNaoEncontradoException("Subcategoria", dto.getSubcategoriaId()));
+        }
+        
+        Instituicao instituicao = instituicaoRepository.findById(dto.getInstituicaoId())
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Instituição", dto.getInstituicaoId()));
+        
+        Transacao transacao = new Transacao();
+        transacao.setData(dto.getData());
+        transacao.setDescricao(dto.getDescricao());
+        transacao.setValor(dto.getValor());
+        transacao.setTipo(dto.getTipo());
+        transacao.setCategoria(categoria);
+        transacao.setSubcategoria(subcategoria);
+        transacao.setInstituicao(instituicao);
+        transacao.setUsuario(usuario);
+        transacao.setPerfil(perfil);
         
         transacao = transacaoRepository.save(transacao);
         
@@ -233,6 +284,30 @@ public class TransacaoService {
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Perfil", perfilId));
         
         return transacaoRepository.findByPerfilAndDataBetween(perfil, dataInicio, dataFim).stream()
+                .map(this::converterParaDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public List<TransacaoDTO> listarPorPerfilECategoria(Long perfilId, Long categoriaId) {
+        Perfil perfil = perfilRepository.findById(perfilId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Perfil", perfilId));
+        
+        Categoria categoria = categoriaRepository.findById(categoriaId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria", categoriaId));
+        
+        return transacaoRepository.findByPerfilAndCategoria(perfil, categoria).stream()
+                .map(this::converterParaDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public List<TransacaoDTO> listarPorPerfilTipoECategoria(Long perfilId, String tipo, Long categoriaId) {
+        Perfil perfil = perfilRepository.findById(perfilId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Perfil", perfilId));
+        
+        Categoria categoria = categoriaRepository.findById(categoriaId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria", categoriaId));
+        
+        return transacaoRepository.findByPerfilAndTipoAndCategoria(perfil, tipo, categoria).stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }

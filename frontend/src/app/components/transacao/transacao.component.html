@@ -1,6 +1,6 @@
 <div class="transacao-container">
   <div class="header">
-    <h2>Gerenciar Transações</h2>
+    <h2>Gerenciar Lançamentos</h2>
   </div>
 
   <!-- Mensagens de sucesso e erro -->
@@ -13,7 +13,7 @@
 
   <!-- Formulário -->
   <div class="form-section">
-    <h3>{{ editingTransacao ? 'Editar Transação' : 'Nova Transação' }}</h3>
+    <h3>{{ editingTransacao ? 'Editar Lançamento' : 'Novo Lançamento' }}</h3>
     <form [formGroup]="transacaoForm" (ngSubmit)="onSubmit()">
       <div class="form-row">
         <div class="form-group">
@@ -22,7 +22,7 @@
             type="text"
             id="descricao"
             formControlName="descricao"
-            placeholder="Digite a descrição da transação"
+            placeholder="Digite a descrição do lançamento"
             [class.error]="transacaoForm.get('descricao')?.invalid && transacaoForm.get('descricao')?.touched"
           >
           <div *ngIf="transacaoForm.get('descricao')?.invalid && transacaoForm.get('descricao')?.touched" class="error-message">
@@ -75,12 +75,17 @@
       <div class="form-row">
         <div class="form-group">
           <label for="categoriaId">Categoria *</label>
-          <select id="categoriaId" formControlName="categoriaId" [class.error]="transacaoForm.get('categoriaId')?.invalid && transacaoForm.get('categoriaId')?.touched">
-            <option value="">Selecione uma categoria</option>
-            <option *ngFor="let categoria of categorias" [value]="categoria.id">
-              {{ categoria.nome }} ({{ categoria.tipo }})
-            </option>
-          </select>
+          <div class="input-with-button">
+            <select id="categoriaId" formControlName="categoriaId" [class.error]="transacaoForm.get('categoriaId')?.invalid && transacaoForm.get('categoriaId')?.touched">
+              <option value="">Selecione uma categoria</option>
+              <option *ngFor="let categoria of categorias" [value]="categoria.id">
+                {{ categoria.nome }} ({{ categoria.tipo }})
+              </option>
+            </select>
+            <button type="button" class="btn btn-sm btn-outline" (click)="abrirModalNovaCategoria()" title="Nova Categoria">
+              +
+            </button>
+          </div>
           <div *ngIf="transacaoForm.get('categoriaId')?.invalid && transacaoForm.get('categoriaId')?.touched" class="error-message">
             <span *ngIf="transacaoForm.get('categoriaId')?.errors?.['required']">Categoria é obrigatória</span>
           </div>
@@ -88,12 +93,17 @@
 
         <div class="form-group">
           <label for="subcategoriaId">Subcategoria</label>
-          <select id="subcategoriaId" formControlName="subcategoriaId" [disabled]="subcategorias.length === 0">
-            <option value="">Selecione uma subcategoria (opcional)</option>
-            <option *ngFor="let subcategoria of subcategorias" [value]="subcategoria.id">
-              {{ subcategoria.nome }}
-            </option>
-          </select>
+          <div class="input-with-button">
+            <select id="subcategoriaId" formControlName="subcategoriaId" [disabled]="subcategorias.length === 0">
+              <option value="">Selecione uma subcategoria (opcional)</option>
+              <option *ngFor="let subcategoria of subcategorias" [value]="subcategoria.id">
+                {{ subcategoria.nome }}
+              </option>
+            </select>
+            <button type="button" class="btn btn-sm btn-outline" (click)="abrirModalNovaSubcategoria()" [disabled]="!transacaoForm.get('categoriaId')?.value" title="Nova Subcategoria">
+              +
+            </button>
+          </div>
         </div>
       </div>
 
@@ -157,15 +167,15 @@
     </div>
   </div>
 
-  <!-- Lista de transações -->
+  <!-- Lista de lançamentos -->
   <div class="list-section">
-    <h3>Transações Cadastradas</h3>
+    <h3>Lançamentos Cadastrados</h3>
     <div *ngIf="loading && transacoes.length === 0" class="loading">
-      Carregando transações...
+      Carregando lançamentos...
     </div>
     
     <div *ngIf="transacoes.length === 0 && !loading" class="empty-state">
-      Nenhuma transação cadastrada ainda.
+      Nenhum lançamento cadastrado ainda.
     </div>
 
     <div *ngIf="transacoes.length > 0" class="transacoes-list">
@@ -209,5 +219,86 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Modal Nova Categoria -->
+<div *ngIf="mostrarModalCategoria" class="modal-overlay" (click)="fecharModalCategoria()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Nova Categoria</h3>
+      <button type="button" class="btn-close" (click)="fecharModalCategoria()">&times;</button>
+    </div>
+    <form [formGroup]="categoriaForm" (ngSubmit)="criarCategoria()">
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="categoriaNome">Nome *</label>
+          <input
+            type="text"
+            id="categoriaNome"
+            formControlName="nome"
+            placeholder="Digite o nome da categoria"
+            [class.error]="categoriaForm.get('nome')?.invalid && categoriaForm.get('nome')?.touched"
+          >
+          <div *ngIf="categoriaForm.get('nome')?.invalid && categoriaForm.get('nome')?.touched" class="error-message">
+            <span *ngIf="categoriaForm.get('nome')?.errors?.['required']">Nome é obrigatório</span>
+            <span *ngIf="categoriaForm.get('nome')?.errors?.['minlength']">Nome deve ter pelo menos 2 caracteres</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="categoriaTipo">Tipo *</label>
+          <select id="categoriaTipo" formControlName="tipo">
+            <option value="RECEITA">Receita</option>
+            <option value="DESPESA">Despesa</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="fecharModalCategoria()">Cancelar</button>
+        <button type="submit" [disabled]="categoriaForm.invalid || salvandoCategoria" class="btn btn-primary">
+          <span *ngIf="salvandoCategoria">Salvando...</span>
+          <span *ngIf="!salvandoCategoria">Criar</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Nova Subcategoria -->
+<div *ngIf="mostrarModalSubcategoria" class="modal-overlay" (click)="fecharModalSubcategoria()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Nova Subcategoria</h3>
+      <button type="button" class="btn-close" (click)="fecharModalSubcategoria()">&times;</button>
+    </div>
+    <form [formGroup]="subcategoriaForm" (ngSubmit)="criarSubcategoria()">
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="subcategoriaNome">Nome *</label>
+          <input
+            type="text"
+            id="subcategoriaNome"
+            formControlName="nome"
+            placeholder="Digite o nome da subcategoria"
+            [class.error]="subcategoriaForm.get('nome')?.invalid && subcategoriaForm.get('nome')?.touched"
+          >
+          <div *ngIf="subcategoriaForm.get('nome')?.invalid && subcategoriaForm.get('nome')?.touched" class="error-message">
+            <span *ngIf="subcategoriaForm.get('nome')?.errors?.['required']">Nome é obrigatório</span>
+            <span *ngIf="subcategoriaForm.get('nome')?.errors?.['minlength']">Nome deve ter pelo menos 2 caracteres</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Categoria</label>
+          <input type="text" [value]="categoriaSelecionadaNome" readonly class="readonly-input">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="fecharModalSubcategoria()">Cancelar</button>
+        <button type="submit" [disabled]="subcategoriaForm.invalid || salvandoSubcategoria" class="btn btn-primary">
+          <span *ngIf="salvandoSubcategoria">Salvando...</span>
+          <span *ngIf="!salvandoSubcategoria">Criar</span>
+        </button>
+      </div>
+    </form>
   </div>
 </div>

@@ -1,7 +1,7 @@
 export interface ResumoCategoria {
     categoriaId: number;
     categoriaNome: string;
-    tipo: 'RECEITA' | 'DESPESA';
+    tipo: 'Receita' | 'Despesa';
     valor: number;
 }
 
@@ -9,5 +9,5 @@ export interface ResumoFinanceiro {
     totalReceitas: number;
     totalDespesas: number;
     saldoTotal: number;
-    resumoCategorias: ResumoCategoria[];
+    resumoPorCategoria: ResumoCategoria[];
 }

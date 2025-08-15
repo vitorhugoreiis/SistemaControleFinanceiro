@@ -64,7 +64,87 @@
   margin: 0;
 }
 
-.sidebar-nav a {
+.menu-item {
+  position: relative;
+}
+
+.menu-link {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  transition: all 0.3s;
+  cursor: pointer;
+  position: relative;
+}
+
+.menu-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.menu-link.active {
+  background-color: #3498db;
+  color: white;
+}
+
+.menu-link.has-submenu {
+  justify-content: space-between;
+}
+
+.submenu-arrow {
+  transition: transform 0.3s ease;
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.submenu-arrow.expanded {
+  transform: rotate(180deg);
+}
+
+.submenu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+  animation: slideDown 0.3s ease-out;
+}
+
+.submenu-link {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem 0.75rem 3rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  transition: all 0.3s;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.submenu-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.submenu-link.active {
+  background-color: #2980b9;
+  color: white;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 200px;
+  }
+}
+
+// Manter compatibilidade com links antigos
+.sidebar-nav a:not(.menu-link):not(.submenu-link) {
   display: flex;
   align-items: center;
   padding: 0.75rem 1.5rem;
@@ -73,12 +153,12 @@
   transition: all 0.3s;
 }
 
-.sidebar-nav a:hover {
+.sidebar-nav a:not(.menu-link):not(.submenu-link):hover {
   background-color: rgba(255, 255, 255, 0.1);
   color: white;
 }
 
-.sidebar-nav a.active {
+.sidebar-nav a:not(.menu-link):not(.submenu-link).active {
   background-color: #3498db;
   color: white;
 }
@@ -130,7 +210,20 @@
     justify-content: center;
   }
   
-  .sidebar-nav a {
+  .menu-link {
+    justify-content: center;
+    padding: 0.75rem;
+  }
+  
+  .submenu-arrow {
+    display: none;
+  }
+  
+  .submenu {
+    display: none;
+  }
+  
+  .sidebar-nav a:not(.menu-link):not(.submenu-link) {
     justify-content: center;
     padding: 0.75rem;
   }

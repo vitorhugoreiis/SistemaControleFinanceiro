@@ -50,8 +50,8 @@
         <canvas baseChart 
           [datasets]="receitasChartData.datasets"
           [labels]="receitasChartData.labels"
-          [options]="{responsive: true}"
-          [type]="'doughnut'">
+          [options]="barChartOptions"
+          [type]="'bar'">
         </canvas>
       </div>
       <div *ngIf="!receitasChartData || receitasChartData.labels.length === 0" class="no-data">
@@ -65,8 +65,8 @@
         <canvas baseChart 
           [datasets]="despesasChartData.datasets"
           [labels]="despesasChartData.labels"
-          [options]="{responsive: true}"
-          [type]="'doughnut'">
+          [options]="barChartOptions"
+          [type]="'bar'">
         </canvas>
       </div>
       <div *ngIf="!despesasChartData || despesasChartData.labels.length === 0" class="no-data">
@@ -74,28 +74,29 @@
       </div>
     </div>
     
-    <div class="chart-card full-width">
+    <div class="chart-card">
       <h3>Balanço Financeiro</h3>
       <div class="chart">
         <canvas baseChart 
           [datasets]="balanceChartData.datasets"
           [labels]="balanceChartData.labels"
-          [options]="{responsive: true}"
+          [options]="barChartOptions"
           [type]="'bar'">
         </canvas>
       </div>
     </div>
   </div>
   
-  <div *ngIf="resumoFinanceiro && resumoFinanceiro.resumoCategorias.length > 0" class="categorias-container">
+  <div *ngIf="resumoFinanceiro && resumoFinanceiro.resumoPorCategoria.length > 0" class="categorias-container">
     <h2>Detalhamento por Categoria</h2>
     
     <div class="categorias-tabs">
-      <button class="tab-btn active" onclick="openTab(event, 'receitas')">Receitas</button>
-      <button class="tab-btn" onclick="openTab(event, 'despesas')">Despesas</button>
+      <button class="tab-btn" [class.active]="activeTab === 'receitas'" (click)="openTab('receitas')">Receitas</button>
+      <button class="tab-btn" [class.active]="activeTab === 'despesas'" (click)="openTab('despesas')">Despesas</button>
+      <button class="tab-btn" [class.active]="activeTab === 'balanco'" (click)="openTab('balanco')">Balanço</button>
     </div>
     
-    <div id="receitas" class="tab-content">
+    <div *ngIf="activeTab === 'receitas'" class="tab-content">
       <table class="categorias-table">
         <thead>
           <tr>
@@ -105,7 +106,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let categoria of resumoFinanceiro.resumoCategorias | filter:'RECEITA':'tipo'">
+          <tr *ngFor="let categoria of resumoFinanceiro.resumoPorCategoria | filter:'Receita':'tipo'">
             <td>{{ categoria.categoriaNome }}</td>
             <td>{{ formatCurrency(categoria.valor) }}</td>
             <td>{{ (categoria.valor / resumoFinanceiro.totalReceitas * 100).toFixed(2) }}%</td>
@@ -114,7 +115,7 @@
       </table>
     </div>
     
-    <div id="despesas" class="tab-content" style="display: none;">
+    <div *ngIf="activeTab === 'despesas'" class="tab-content">
       <table class="categorias-table">
         <thead>
           <tr>
@@ -124,11 +125,40 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let categoria of resumoFinanceiro.resumoCategorias | filter:'DESPESA':'tipo'">
+          <tr *ngFor="let categoria of resumoFinanceiro.resumoPorCategoria | filter:'Despesa':'tipo'">
             <td>{{ categoria.categoriaNome }}</td>
             <td>{{ formatCurrency(categoria.valor) }}</td>
             <td>{{ (categoria.valor / resumoFinanceiro.totalDespesas * 100).toFixed(2) }}%</td>
           </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div *ngIf="activeTab === 'balanco'" class="tab-content">
+      <table class="categorias-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Valor</th>
+            <th>%</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Receitas</td>
+            <td>{{ formatCurrency(resumoFinanceiro.totalReceitas) }}</td>
+            <td>{{ ((resumoFinanceiro.totalReceitas / (resumoFinanceiro.totalReceitas + resumoFinanceiro.totalDespesas)) * 100).toFixed(2) }}%</td>
+          </tr>
+          <tr>
+            <td>Despesas</td>
+            <td>{{ formatCurrency(resumoFinanceiro.totalDespesas) }}</td>
+            <td>{{ ((resumoFinanceiro.totalDespesas / (resumoFinanceiro.totalReceitas + resumoFinanceiro.totalDespesas)) * 100).toFixed(2) }}%</td>
+          </tr>
+          <tr [ngClass]="{'negativo': resumoFinanceiro.saldoTotal < 0}">
+               <td>Saldo</td>
+               <td>{{ formatCurrency(resumoFinanceiro.saldoTotal) }}</td>
+               <td>-</td>
+             </tr>
         </tbody>
       </table>
     </div>

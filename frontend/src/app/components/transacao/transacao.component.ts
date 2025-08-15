@@ -4,6 +4,8 @@ import { TransacaoService } from '../../services/transacao.service';
 import { CategoriaService } from '../../services/categoria.service';
 import { SubcategoriaService } from '../../services/subcategoria.service';
 import { InstituicaoService } from '../../services/instituicao.service';
+import { AuthService } from '../../services/auth.service';
+import { PerfilService, Perfil } from '../../services/perfil.service';
 import { Transacao } from '../../models/transacao.model';
 import { Categoria } from '../../models/categoria.model';
 import { Subcategoria } from '../../models/subcategoria.model';
@@ -20,18 +22,32 @@ export class TransacaoComponent implements OnInit {
   subcategorias: Subcategoria[] = [];
   instituicoes: Instituicao[] = [];
   transacaoForm: FormGroup;
+  categoriaForm: FormGroup;
+  subcategoriaForm: FormGroup;
   editingTransacao: Transacao | null = null;
   loading = false;
   errorMessage = '';
   successMessage = '';
   filtroTipo = '';
   filtroCategoria = '';
+  
+  // Perfil do usuário
+  perfilAtual: Perfil | null = null;
+  
+  // Propriedades para os modais
+  mostrarModalCategoria = false;
+  mostrarModalSubcategoria = false;
+  salvandoCategoria = false;
+  salvandoSubcategoria = false;
+  categoriaSelecionadaNome = '';
 
   constructor(
     private transacaoService: TransacaoService,
     private categoriaService: CategoriaService,
     private subcategoriaService: SubcategoriaService,
     private instituicaoService: InstituicaoService,
+    private authService: AuthService,
+    private perfilService: PerfilService,
     private formBuilder: FormBuilder
   ) {
     this.transacaoForm = this.formBuilder.group({
@@ -44,9 +60,20 @@ export class TransacaoComponent implements OnInit {
       instituicaoId: ['', [Validators.required]],
       observacao: ['']
     });
+
+    this.categoriaForm = this.formBuilder.group({
+      nome: ['', [Validators.required, Validators.minLength(2)]],
+      tipo: ['DESPESA', [Validators.required]]
+    });
+
+    this.subcategoriaForm = this.formBuilder.group({
+      nome: ['', [Validators.required, Validators.minLength(2)]],
+      categoriaId: ['', [Validators.required]]
+    });
   }
 
   ngOnInit(): void {
+    this.carregarPerfilPadrao();
     this.carregarDados();
     this.carregarTransacoes();
     
@@ -59,6 +86,23 @@ export class TransacaoComponent implements OnInit {
       }
       this.transacaoForm.get('subcategoriaId')?.setValue('');
     });
+  }
+
+  carregarPerfilPadrao(): void {
+    const usuario = this.authService.getUsuarioAtual();
+    if (usuario && usuario.id) {
+      this.perfilService.listarPorUsuario(usuario.id).subscribe({
+        next: (perfis) => {
+          // Pegar o primeiro perfil (perfil padrão)
+          if (perfis.length > 0) {
+            this.perfilAtual = perfis[0];
+          }
+        },
+        error: (error) => {
+          console.error('Erro ao carregar perfil:', error);
+        }
+      });
+    }
   }
 
   carregarDados(): void {
@@ -104,7 +148,7 @@ export class TransacaoComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        this.errorMessage = 'Erro ao carregar transações';
+        this.errorMessage = 'Erro ao carregar lançamentos';
         this.loading = false;
         console.error('Erro:', error);
       }
@@ -113,6 +157,12 @@ export class TransacaoComponent implements OnInit {
 
   onSubmit(): void {
     if (this.transacaoForm.invalid) {
+      return;
+    }
+
+    // Verificar se o perfil foi carregado
+    if (!this.perfilAtual || !this.perfilAtual.id) {
+      this.errorMessage = 'Erro: Perfil não carregado. Tente recarregar a página.';
       return;
     }
 
@@ -125,33 +175,36 @@ export class TransacaoComponent implements OnInit {
       categoriaId: parseInt(this.transacaoForm.value.categoriaId),
       subcategoriaId: this.transacaoForm.value.subcategoriaId ? parseInt(this.transacaoForm.value.subcategoriaId) : null,
       instituicaoId: parseInt(this.transacaoForm.value.instituicaoId),
-      valor: parseFloat(this.transacaoForm.value.valor)
+      valor: parseFloat(this.transacaoForm.value.valor),
+      perfilId: this.perfilAtual.id
     };
 
+    console.log('Dados da transação:', transacaoData); // Para debug
+
     if (this.editingTransacao) {
-      // Atualizar transação existente
+      // Atualizar lançamento existente
       this.transacaoService.atualizar(this.editingTransacao.id!, transacaoData).subscribe({
         next: () => {
-          this.successMessage = 'Transação atualizada com sucesso!';
+          this.successMessage = 'Lançamento atualizado com sucesso!';
           this.resetForm();
           this.carregarTransacoes();
         },
         error: (error) => {
-          this.errorMessage = 'Erro ao atualizar transação';
+          this.errorMessage = 'Erro ao atualizar lançamento';
           this.loading = false;
           console.error('Erro:', error);
         }
       });
     } else {
-      // Criar nova transação
+      // Criar novo lançamento
       this.transacaoService.salvar(transacaoData).subscribe({
         next: () => {
-          this.successMessage = 'Transação criada com sucesso!';
+          this.successMessage = 'Lançamento criado com sucesso!';
           this.resetForm();
           this.carregarTransacoes();
         },
         error: (error) => {
-          this.errorMessage = 'Erro ao criar transação';
+          this.errorMessage = 'Erro ao criar lançamento';
           this.loading = false;
           console.error('Erro:', error);
         }
@@ -180,14 +233,14 @@ export class TransacaoComponent implements OnInit {
   }
 
   excluirTransacao(transacao: Transacao): void {
-    if (confirm(`Tem certeza que deseja excluir a transação "${transacao.descricao}"?`)) {
+    if (confirm(`Tem certeza que deseja excluir o lançamento "${transacao.descricao}"?`)) {
       this.transacaoService.excluir(transacao.id!).subscribe({
         next: () => {
-          this.successMessage = 'Transação excluída com sucesso!';
+          this.successMessage = 'Lançamento excluído com sucesso!';
           this.carregarTransacoes();
         },
         error: (error) => {
-          this.errorMessage = 'Erro ao excluir transação';
+          this.errorMessage = 'Erro ao excluir lançamento';
           console.error('Erro:', error);
         }
       });
@@ -209,44 +262,32 @@ export class TransacaoComponent implements OnInit {
   }
 
   filtrarTransacoes(): void {
-    let transacoesFiltradas = [...this.transacoes];
-
-    if (this.filtroTipo) {
-      transacoesFiltradas = transacoesFiltradas.filter(t => t.tipo === this.filtroTipo);
-    }
-
-    if (this.filtroCategoria) {
-      const categoriaId = parseInt(this.filtroCategoria);
-      transacoesFiltradas = transacoesFiltradas.filter(t => t.categoriaId === categoriaId);
-    }
-
-    // Aplicar filtros via API se necessário
-    if (this.filtroTipo && !this.filtroCategoria) {
-      this.transacaoService.listarPorTipo(this.filtroTipo as 'RECEITA' | 'DESPESA').subscribe({
-        next: (transacoes) => {
-          this.transacoes = transacoes.sort((a, b) => 
-            new Date(b.data).getTime() - new Date(a.data).getTime()
-          );
-        },
-        error: (error) => {
-          console.error('Erro ao filtrar transações:', error);
-        }
-      });
-    } else if (this.filtroCategoria && !this.filtroTipo) {
-      const categoriaId = parseInt(this.filtroCategoria);
-      this.transacaoService.listarPorCategoria(categoriaId).subscribe({
-        next: (transacoes) => {
-          this.transacoes = transacoes.sort((a, b) => 
-            new Date(b.data).getTime() - new Date(a.data).getTime()
-          );
-        },
-        error: (error) => {
-          console.error('Erro ao filtrar transações:', error);
-        }
-      });
-    } else if (!this.filtroTipo && !this.filtroCategoria) {
+    this.loading = true;
+    
+    // Se não há filtros, carregar todas as transações
+    if ((!this.filtroTipo || this.filtroTipo === '') && (!this.filtroCategoria || this.filtroCategoria === '')) {
       this.carregarTransacoes();
+      return;
     }
+
+    // Preparar parâmetros para o filtro
+    const tipoFiltro = this.filtroTipo && this.filtroTipo !== '' ? this.filtroTipo : undefined;
+    const categoriaFiltro = this.filtroCategoria && this.filtroCategoria !== '' ? this.filtroCategoria : undefined;
+
+    // Usar o endpoint principal com parâmetros de query
+    this.transacaoService.listarComFiltros(this.perfilAtual?.id, tipoFiltro, categoriaFiltro).subscribe({
+      next: (transacoes) => {
+        this.transacoes = transacoes.sort((a, b) => 
+          new Date(b.data).getTime() - new Date(a.data).getTime()
+        );
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Erro ao filtrar lançamentos:', error);
+        this.errorMessage = 'Erro ao filtrar lançamentos';
+        this.loading = false;
+      }
+    });
   }
 
   formatarValor(valor: number): string {
@@ -258,5 +299,95 @@ export class TransacaoComponent implements OnInit {
 
   formatarData(data: string): string {
     return new Date(data + 'T00:00:00').toLocaleDateString('pt-BR');
+  }
+
+  // Métodos para Modal de Categoria
+  abrirModalNovaCategoria(): void {
+    this.categoriaForm.reset();
+    this.categoriaForm.patchValue({
+      tipo: this.transacaoForm.get('tipo')?.value || 'DESPESA'
+    });
+    this.mostrarModalCategoria = true;
+  }
+
+  fecharModalCategoria(): void {
+    this.mostrarModalCategoria = false;
+    this.categoriaForm.reset();
+  }
+
+  criarCategoria(): void {
+    if (this.categoriaForm.valid && this.perfilAtual) {
+      this.salvandoCategoria = true;
+      const novaCategoria: any = {
+        nome: this.categoriaForm.get('nome')?.value,
+        tipo: this.categoriaForm.get('tipo')?.value,
+        perfilId: this.perfilAtual.id
+      };
+
+      this.categoriaService.salvar(novaCategoria).subscribe({
+        next: (categoria) => {
+          this.salvandoCategoria = false;
+          this.categorias.push(categoria);
+          this.categorias.sort((a, b) => a.nome.localeCompare(b.nome));
+          this.transacaoForm.patchValue({ categoriaId: categoria.id });
+          this.fecharModalCategoria();
+          this.successMessage = 'Categoria criada com sucesso!';
+          setTimeout(() => this.successMessage = '', 3000);
+        },
+        error: (error) => {
+          this.salvandoCategoria = false;
+          this.errorMessage = 'Erro ao criar categoria: ' + (error.error?.message || error.message);
+          setTimeout(() => this.errorMessage = '', 5000);
+        }
+      });
+    }
+  }
+
+  // Métodos para Modal de Subcategoria
+  abrirModalNovaSubcategoria(): void {
+    const categoriaId = this.transacaoForm.get('categoriaId')?.value;
+    if (categoriaId) {
+      const categoria = this.categorias.find(c => c.id == categoriaId);
+      this.categoriaSelecionadaNome = categoria ? categoria.nome : '';
+      
+      this.subcategoriaForm.reset();
+      this.subcategoriaForm.patchValue({
+        categoriaId: parseInt(categoriaId)
+      });
+      this.mostrarModalSubcategoria = true;
+    }
+  }
+
+  fecharModalSubcategoria(): void {
+    this.mostrarModalSubcategoria = false;
+    this.subcategoriaForm.reset();
+    this.categoriaSelecionadaNome = '';
+  }
+
+  criarSubcategoria(): void {
+    if (this.subcategoriaForm.valid) {
+      this.salvandoSubcategoria = true;
+      const novaSubcategoria: Subcategoria = {
+        nome: this.subcategoriaForm.get('nome')?.value,
+        categoriaId: this.subcategoriaForm.get('categoriaId')?.value
+      };
+
+      this.subcategoriaService.salvar(novaSubcategoria).subscribe({
+        next: (subcategoria) => {
+          this.salvandoSubcategoria = false;
+          this.subcategorias.push(subcategoria);
+          this.subcategorias.sort((a, b) => a.nome.localeCompare(b.nome));
+          this.transacaoForm.patchValue({ subcategoriaId: subcategoria.id });
+          this.fecharModalSubcategoria();
+          this.successMessage = 'Subcategoria criada com sucesso!';
+          setTimeout(() => this.successMessage = '', 3000);
+        },
+        error: (error) => {
+          this.salvandoSubcategoria = false;
+          this.errorMessage = 'Erro ao criar subcategoria: ' + (error.error?.message || error.message);
+          setTimeout(() => this.errorMessage = '', 5000);
+        }
+      });
+    }
   }
 }

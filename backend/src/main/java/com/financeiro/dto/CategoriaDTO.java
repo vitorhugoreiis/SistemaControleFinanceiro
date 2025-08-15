@@ -20,5 +20,7 @@ public class CategoriaDTO {
     @NotBlank(message = "O tipo é obrigatório")
     private String tipo; // Receita ou Despesa
     
+    private Long perfilId;
+    
     private List<SubcategoriaDTO> subcategorias;
 }

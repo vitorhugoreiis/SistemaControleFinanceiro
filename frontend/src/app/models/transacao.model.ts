@@ -11,5 +11,6 @@ export interface Transacao {
     instituicaoId: number;
     instituicaoNome?: string;
     usuarioId?: number;
+    perfilId?: number;
     observacao?: string;
 }

@@ -36,6 +36,10 @@ public interface TransacaoRepository extends JpaRepository<Transacao, Long> {
     
     List<Transacao> findByPerfilAndDataBetween(Perfil perfil, LocalDate dataInicio, LocalDate dataFim);
     
+    List<Transacao> findByPerfilAndCategoria(Perfil perfil, Categoria categoria);
+    
+    List<Transacao> findByPerfilAndTipoAndCategoria(Perfil perfil, String tipo, Categoria categoria);
+    
     @Query("SELECT t FROM Transacao t WHERE t.usuario = ?1 AND t.tipo = ?2 AND t.data BETWEEN ?3 AND ?4")
     List<Transacao> buscarTransacoesPorTipoEPeriodo(Usuario usuario, String tipo, LocalDate dataInicio, LocalDate dataFim);
     

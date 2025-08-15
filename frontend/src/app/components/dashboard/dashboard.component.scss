@@ -142,6 +142,9 @@ input[type="date"] {
   padding: 1.5rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .chart-card h3 {
@@ -157,6 +160,7 @@ input[type="date"] {
 
 .chart {
   height: 250px;
+  width: 100%;
 }
 
 .no-data {
@@ -231,6 +235,16 @@ input[type="date"] {
 
 .categorias-table tr:last-child td {
   border-bottom: none;
+}
+
+.positivo {
+  color: #28a745 !important;
+  font-weight: 600;
+}
+
+.negativo {
+  color: #dc3545 !important;
+  font-weight: 600;
 }
 
 @media (max-width: 768px) {

@@ -24,6 +24,24 @@ export class TransacaoService {
     return this.http.get<Transacao[]>(`${this.apiUrl}/categoria/${categoriaId}`);
   }
 
+  listarComFiltros(perfilId?: number, tipo?: string, categoriaId?: string): Observable<Transacao[]> {
+    let params = new HttpParams();
+    
+    if (perfilId) {
+      params = params.set('perfilId', perfilId.toString());
+    }
+    
+    if (tipo) {
+      params = params.set('tipo', tipo);
+    }
+    
+    if (categoriaId) {
+      params = params.set('categoriaId', categoriaId);
+    }
+    
+    return this.http.get<Transacao[]>(this.apiUrl, { params });
+  }
+
   listarPorInstituicao(instituicaoId: number): Observable<Transacao[]> {
     return this.http.get<Transacao[]>(`${this.apiUrl}/instituicao/${instituicaoId}`);
   }
@@ -40,6 +58,16 @@ export class TransacaoService {
   }
 
   salvar(transacao: Transacao): Observable<Transacao> {
+    let params = new HttpParams();
+    
+    // Se a transação tem perfilId, enviar como parâmetro de query
+    if (transacao.perfilId) {
+      params = params.set('perfilId', transacao.perfilId.toString());
+      // Remover perfilId do corpo da requisição
+      const { perfilId, ...transacaoSemPerfilId } = transacao;
+      return this.http.post<Transacao>(this.apiUrl, transacaoSemPerfilId, { params });
+    }
+    
     return this.http.post<Transacao>(this.apiUrl, transacao);
   }
 

@@ -48,6 +48,13 @@ Após iniciar o backend, você pode verificar se está funcionando corretamente 
    ```bash
    npm install
    ```
+   
+   **Principais dependências do projeto:**
+   - Angular 16 (framework principal)
+   - Chart.js e ng2-charts (gráficos e visualizações)
+   - RxJS (programação reativa)
+   - Angular CDK (componentes de desenvolvimento)
+   - TypeScript (linguagem de programação)
 
 3. Inicie o servidor de desenvolvimento:
    ```bash
@@ -62,6 +69,32 @@ Após iniciar o backend, você pode verificar se está funcionando corretamente 
    ```
    http://localhost:4200
    ```
+
+### Rotas Disponíveis no Frontend
+
+Após iniciar o frontend, as seguintes rotas estarão disponíveis:
+
+- **/** - Redireciona para o dashboard
+- **/login** - Página de autenticação
+- **/cadastro** - Página de registro de novos usuários
+- **/dashboard** - Dashboard principal com resumo financeiro (protegida)
+- **/perfil** - Gerenciamento do perfil do usuário (protegida)
+- **/categorias** - Gerenciamento de categorias (protegida)
+- **/subcategorias** - Gerenciamento de subcategorias (protegida)
+- **/transacoes** - Gerenciamento de transações (protegida)
+- **/instituicoes** - Gerenciamento de instituições financeiras (protegida)
+- **/importacao** - Importação de extratos bancários (protegida)
+
+*Nota: Rotas marcadas como "protegidas" requerem autenticação e redirecionam para /login se o usuário não estiver logado.*
+
+### Primeiros Passos no Sistema
+
+1. **Primeiro acesso**: Acesse `/cadastro` para criar uma conta
+2. **Login**: Use `/login` para autenticar-se no sistema
+3. **Dashboard**: Após o login, você será redirecionado para o dashboard principal
+4. **Navegação**: Use o menu lateral (sidebar) para acessar as diferentes funcionalidades
+5. **Perfil**: Acesse `/perfil` para gerenciar seus dados pessoais (nome, email, senha)
+6. **Configuração inicial**: Configure categorias e instituições antes de registrar transações
 
 ## Notas Importantes
 
@@ -95,7 +128,24 @@ Se desejar usar o PostgreSQL em vez do H2:
 ### Frontend
 
 - **Tecnologias**: Angular 16, TypeScript, SCSS
-- **Componentes principais**: Login, Cadastro, Dashboard, Sidebar
+- **Componentes principais**: 
+  - Login: Autenticação de usuários
+  - Cadastro: Registro de novos usuários
+  - Dashboard: Resumo financeiro com gráficos e estatísticas
+  - Sidebar: Menu de navegação lateral
+  - Perfil: Gerenciamento de dados pessoais (nome, email, senha)
+  - Categoria: Gerenciamento de categorias de transações
+  - Subcategoria: Gerenciamento de subcategorias
+  - Transação: Gerenciamento de transações financeiras
+  - Instituição: Gerenciamento de instituições financeiras
+  - Importação: Importação de extratos bancários
+- **Funcionalidades implementadas**:
+  - Autenticação JWT com interceptor HTTP
+  - Proteção de rotas com AuthGuard
+  - Visualização de dados com gráficos (Chart.js)
+  - Formulários reativos com validação
+  - Gerenciamento completo de entidades financeiras
+  - Sistema de perfil do usuário com alteração de dados pessoais
 
 ## Solução de Problemas
 
@@ -131,6 +181,19 @@ Se encontrar erros relacionados ao Node.js ou npm:
    ```bash
    rm -rf node_modules
    npm install
+   ```
+
+4. **Problemas com ng2-charts**:
+   Se encontrar erros relacionados ao ng2-charts:
+   ```bash
+   npm install @angular/cdk@^16.2.0 --save
+   npm install
+   ```
+
+5. **Problemas de compatibilidade Angular**:
+   Certifique-se de que todas as dependências Angular estão na versão 16:
+   ```bash
+   ng update
    ```
 
 ### Problemas de Porta

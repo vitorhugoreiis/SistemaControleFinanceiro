@@ -66,9 +66,13 @@ public class CategoriaService {
             throw new RuntimeException("Já existe uma categoria com este nome e tipo");
         }
         
+        Perfil perfil = perfilRepository.findById(dto.getPerfilId())
+                .orElseThrow(() -> new RuntimeException("Perfil não encontrado"));
+        
         Categoria categoria = new Categoria();
         categoria.setNome(dto.getNome());
         categoria.setTipo(dto.getTipo());
+        categoria.setPerfil(perfil);
         
         categoria = categoriaRepository.save(categoria);
         
@@ -105,6 +109,7 @@ public class CategoriaService {
         dto.setId(categoria.getId());
         dto.setNome(categoria.getNome());
         dto.setTipo(categoria.getTipo());
+        dto.setPerfilId(categoria.getPerfil() != null ? categoria.getPerfil().getId() : null);
         
         // Buscar subcategorias relacionadas
         List<SubcategoriaDTO> subcategorias = subcategoriaService.listarPorCategoria(categoria.getId());
