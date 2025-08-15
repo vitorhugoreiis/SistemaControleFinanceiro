@@ -1,0 +1,137 @@
+<div class="instituicao-container">
+  <div class="header">
+    <h2>Gerenciar Instituições Financeiras</h2>
+  </div>
+
+  <!-- Mensagens de sucesso e erro -->
+  <div class="alert alert-success" *ngIf="successMessage">
+    {{ successMessage }}
+  </div>
+  <div class="alert alert-error" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Formulário para criar/editar instituição -->
+  <div class="form-section">
+    <h3>{{ editingInstituicao ? 'Editar Instituição' : 'Nova Instituição' }}</h3>
+    <form [formGroup]="instituicaoForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nome">Nome da Instituição *</label>
+          <input
+            type="text"
+            id="nome"
+            formControlName="nome"
+            placeholder="Ex: Banco do Brasil, Nubank, Carteira"
+            [class.error]="instituicaoForm.get('nome')?.invalid && instituicaoForm.get('nome')?.touched"
+          />
+          <div class="error-message" *ngIf="instituicaoForm.get('nome')?.invalid && instituicaoForm.get('nome')?.touched">
+            <span *ngIf="instituicaoForm.get('nome')?.errors?.['required']">Nome é obrigatório</span>
+            <span *ngIf="instituicaoForm.get('nome')?.errors?.['minlength']">Nome deve ter pelo menos 2 caracteres</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="tipo">Tipo *</label>
+          <select id="tipo" formControlName="tipo">
+            <option *ngFor="let tipo of tiposInstituicao" [value]="tipo.value">
+              {{ tipo.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="saldo">Saldo *</label>
+          <input
+            type="number"
+            id="saldo"
+            formControlName="saldo"
+            placeholder="0.00"
+            step="0.01"
+            min="0"
+            [class.error]="instituicaoForm.get('saldo')?.invalid && instituicaoForm.get('saldo')?.touched"
+          />
+          <div class="error-message" *ngIf="instituicaoForm.get('saldo')?.invalid && instituicaoForm.get('saldo')?.touched">
+            <span *ngIf="instituicaoForm.get('saldo')?.errors?.['required']">Saldo é obrigatório</span>
+            <span *ngIf="instituicaoForm.get('saldo')?.errors?.['min']">Saldo deve ser maior ou igual a zero</span>
+          </div>
+        </div>
+
+
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="instituicaoForm.invalid || loading">
+          <span *ngIf="loading">Salvando...</span>
+          <span *ngIf="!loading">{{ editingInstituicao ? 'Atualizar' : 'Criar' }} Instituição</span>
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="cancelarEdicao()" *ngIf="editingInstituicao">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filter-section">
+    <h3>Filtros</h3>
+    <div class="filter-row">
+      <div class="filter-group">
+        <label for="filtroTipo">Filtrar por Tipo:</label>
+        <select id="filtroTipo" [(ngModel)]="filtroTipo" (change)="filtrarPorTipo()">
+          <option value="">Todos os tipos</option>
+          <option *ngFor="let tipo of tiposInstituicao" [value]="tipo.value">
+            {{ tipo.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de instituições -->
+  <div class="list-section">
+    <h3>Instituições Cadastradas ({{ instituicoesFiltradas.length }})</h3>
+    
+    <div class="loading" *ngIf="loading">
+      Carregando instituições...
+    </div>
+
+    <div class="instituicoes-list" *ngIf="!loading">
+      <div class="instituicao-item" *ngFor="let instituicao of instituicoesFiltradas">
+        <div class="instituicao-info">
+          <div class="instituicao-header">
+            <h4>{{ instituicao.nome }}</h4>
+            <span class="tipo-badge" [class]="'tipo-' + instituicao.tipo.toLowerCase()">
+              {{ getTipoLabel(instituicao.tipo) }}
+            </span>
+          </div>
+          
+          <div class="instituicao-details">
+            <div class="saldo-info">
+              <span class="label">Saldo:</span>
+              <span class="valor atual">{{ formatarValor(calcularSaldoAtual(instituicao)) }}</span>
+            </div>
+          </div>
+          
+
+        </div>
+        
+        <div class="instituicao-actions">
+          <button class="btn btn-edit" (click)="editarInstituicao(instituicao)">
+            Editar
+          </button>
+          <button class="btn btn-delete" (click)="excluirInstituicao(instituicao)">
+            Excluir
+          </button>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="instituicoesFiltradas.length === 0">
+        <p *ngIf="!filtroTipo">Nenhuma instituição cadastrada ainda.</p>
+        <p *ngIf="filtroTipo">Nenhuma instituição encontrada para o tipo selecionado.</p>
+      </div>
+    </div>
+  </div>
+</div>

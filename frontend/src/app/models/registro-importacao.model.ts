@@ -1,7 +1,7 @@
 export interface RegistroImportacao {
     id?: number;
+    dataExtracao: string;
+    banco: string;
+    periodo: string;
     nomeArquivo: string;
-    dataImportacao: string;
-    quantidadeRegistros: number;
-    usuarioId?: number;
 }

@@ -1,0 +1,109 @@
+<div class="subcategoria-container">
+  <div class="header">
+    <h2>Gerenciar Subcategorias</h2>
+  </div>
+
+  <!-- Mensagens de sucesso e erro -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Formulário -->
+  <div class="form-section">
+    <h3>{{ editingSubcategoria ? 'Editar Subcategoria' : 'Nova Subcategoria' }}</h3>
+    <form [formGroup]="subcategoriaForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nome">Nome *</label>
+          <input
+            type="text"
+            id="nome"
+            formControlName="nome"
+            placeholder="Digite o nome da subcategoria"
+            [class.error]="subcategoriaForm.get('nome')?.invalid && subcategoriaForm.get('nome')?.touched"
+          >
+          <div *ngIf="subcategoriaForm.get('nome')?.invalid && subcategoriaForm.get('nome')?.touched" class="error-message">
+            <span *ngIf="subcategoriaForm.get('nome')?.errors?.['required']">Nome é obrigatório</span>
+            <span *ngIf="subcategoriaForm.get('nome')?.errors?.['minlength']">Nome deve ter pelo menos 2 caracteres</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="categoriaId">Categoria *</label>
+          <select id="categoriaId" formControlName="categoriaId" [class.error]="subcategoriaForm.get('categoriaId')?.invalid && subcategoriaForm.get('categoriaId')?.touched">
+            <option value="">Selecione uma categoria</option>
+            <option *ngFor="let categoria of categorias" [value]="categoria.id">
+              {{ categoria.nome }} ({{ categoria.tipo }})
+            </option>
+          </select>
+          <div *ngIf="subcategoriaForm.get('categoriaId')?.invalid && subcategoriaForm.get('categoriaId')?.touched" class="error-message">
+            <span *ngIf="subcategoriaForm.get('categoriaId')?.errors?.['required']">Categoria é obrigatória</span>
+          </div>
+        </div>
+      </div>
+
+
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="subcategoriaForm.invalid || loading" class="btn btn-primary">
+          <span *ngIf="loading">Salvando...</span>
+          <span *ngIf="!loading">{{ editingSubcategoria ? 'Atualizar' : 'Criar' }}</span>
+        </button>
+        <button type="button" *ngIf="editingSubcategoria" (click)="cancelarEdicao()" class="btn btn-secondary">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filter-section">
+    <div class="form-group">
+      <label for="filtroCategoria">Filtrar por Categoria</label>
+      <select id="filtroCategoria" [(ngModel)]="filtroCategoria" (change)="filtrarPorCategoria()">
+        <option value="">Todas as categorias</option>
+        <option *ngFor="let categoria of categorias" [value]="categoria.id">
+          {{ categoria.nome }} ({{ categoria.tipo }})
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Lista de subcategorias -->
+  <div class="list-section">
+    <h3>Subcategorias Cadastradas</h3>
+    <div *ngIf="loading && subcategorias.length === 0" class="loading">
+      Carregando subcategorias...
+    </div>
+    
+    <div *ngIf="subcategorias.length === 0 && !loading" class="empty-state">
+      Nenhuma subcategoria cadastrada ainda.
+    </div>
+
+    <div *ngIf="subcategorias.length > 0" class="subcategorias-grid">
+      <div *ngFor="let subcategoria of subcategorias" class="subcategoria-card">
+        <div class="subcategoria-header">
+          <h4>{{ subcategoria.nome }}</h4>
+          <span class="tipo-badge" [class]="getTipoCategoria(subcategoria.categoriaId).toLowerCase()">
+            {{ getTipoCategoria(subcategoria.categoriaId) }}
+          </span>
+        </div>
+        <div class="categoria-info">
+          <strong>Categoria:</strong> {{ getNomeCategoria(subcategoria.categoriaId) }}
+        </div>
+
+        <div class="subcategoria-actions">
+          <button (click)="editarSubcategoria(subcategoria)" class="btn btn-sm btn-outline">
+            Editar
+          </button>
+          <button (click)="excluirSubcategoria(subcategoria)" class="btn btn-sm btn-danger">
+            Excluir
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

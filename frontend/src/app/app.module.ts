@@ -11,6 +11,12 @@ import { LoginComponent } from './components/login/login.component';
 import { CadastroComponent } from './components/cadastro/cadastro.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { SidebarComponent } from './components/shared/sidebar/sidebar.component';
+import { CategoriaComponent } from './components/categoria/categoria.component';
+import { SubcategoriaComponent } from './components/subcategoria/subcategoria.component';
+import { TransacaoComponent } from './components/transacao/transacao.component';
+import { InstituicaoComponent } from './components/instituicao/instituicao.component';
+import { ImportacaoComponent } from './components/importacao/importacao.component';
+import { PerfilComponent } from './components/perfil/perfil.component';
 
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 
@@ -24,6 +30,12 @@ import { FilterPipe } from './pipes/filter.pipe';
     CadastroComponent,
     DashboardComponent,
     SidebarComponent,
+    CategoriaComponent,
+    SubcategoriaComponent,
+    TransacaoComponent,
+    InstituicaoComponent,
+    ImportacaoComponent,
+    PerfilComponent,
     FilterPipe
   ],
   imports: [

@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.financeiro.dto.AlterarPerfilDTO;
 import com.financeiro.dto.LoginRequestDTO;
 import com.financeiro.dto.LoginResponseDTO;
 import com.financeiro.dto.UsuarioCadastroDTO;
@@ -122,6 +123,53 @@ public class UsuarioService {
         }
         
         usuarioRepository.deleteById(id);
+    }
+    
+    public UsuarioDTO alterarPerfil(Long usuarioId, AlterarPerfilDTO dto) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        
+        // Verificar se a senha atual está correta
+        if (!passwordEncoder.matches(dto.getSenhaAtual(), usuario.getSenhaHash())) {
+            throw new RuntimeException("Senha atual incorreta");
+        }
+        
+        boolean alterado = false;
+        
+        // Alterar senha se solicitado
+        if (dto.isAlteracaoSenha()) {
+            // Verificar se as novas senhas conferem
+            if (!dto.getNovaSenha().equals(dto.getConfirmacaoNovaSenha())) {
+                throw new RuntimeException("As novas senhas não conferem");
+            }
+            
+            usuario.setSenhaHash(passwordEncoder.encode(dto.getNovaSenha()));
+            alterado = true;
+        }
+        
+        // Alterar email se solicitado
+        if (dto.isAlteracaoEmail()) {
+            // Verificar se o novo email já está em uso
+            if (!usuario.getEmail().equals(dto.getNovoEmail()) && usuarioRepository.existsByEmail(dto.getNovoEmail())) {
+                throw new RuntimeException("Email já está em uso");
+            }
+            
+            usuario.setEmail(dto.getNovoEmail());
+            alterado = true;
+        }
+        
+        // Alterar nome se solicitado
+        if (dto.isAlteracaoNome()) {
+            usuario.setNome(dto.getNovoNome());
+            alterado = true;
+        }
+        
+        if (!alterado) {
+            throw new RuntimeException("Nenhuma alteração foi solicitada");
+        }
+        
+        usuario = usuarioRepository.save(usuario);
+        return converterParaDTO(usuario);
     }
     
     private UsuarioDTO converterParaDTO(Usuario usuario) {

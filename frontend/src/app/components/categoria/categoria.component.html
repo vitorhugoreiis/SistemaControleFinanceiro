@@ -1,0 +1,86 @@
+<div class="categoria-container">
+  <div class="header">
+    <h2>Gerenciar Categorias</h2>
+  </div>
+
+  <!-- Mensagens de sucesso e erro -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Formulário -->
+  <div class="form-section">
+    <h3>{{ editingCategoria ? 'Editar Categoria' : 'Nova Categoria' }}</h3>
+    <form [formGroup]="categoriaForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nome">Nome *</label>
+          <input
+            type="text"
+            id="nome"
+            formControlName="nome"
+            placeholder="Digite o nome da categoria"
+            [class.error]="categoriaForm.get('nome')?.invalid && categoriaForm.get('nome')?.touched"
+          >
+          <div *ngIf="categoriaForm.get('nome')?.invalid && categoriaForm.get('nome')?.touched" class="error-message">
+            <span *ngIf="categoriaForm.get('nome')?.errors?.['required']">Nome é obrigatório</span>
+            <span *ngIf="categoriaForm.get('nome')?.errors?.['minlength']">Nome deve ter pelo menos 2 caracteres</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="tipo">Tipo *</label>
+          <select id="tipo" formControlName="tipo">
+            <option value="RECEITA">Receita</option>
+            <option value="DESPESA">Despesa</option>
+          </select>
+        </div>
+      </div>
+
+
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="categoriaForm.invalid || loading" class="btn btn-primary">
+          <span *ngIf="loading">Salvando...</span>
+          <span *ngIf="!loading">{{ editingCategoria ? 'Atualizar' : 'Criar' }}</span>
+        </button>
+        <button type="button" *ngIf="editingCategoria" (click)="cancelarEdicao()" class="btn btn-secondary">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Lista de categorias -->
+  <div class="list-section">
+    <h3>Categorias Cadastradas</h3>
+    <div *ngIf="loading && categorias.length === 0" class="loading">
+      Carregando categorias...
+    </div>
+    
+    <div *ngIf="categorias.length === 0 && !loading" class="empty-state">
+      Nenhuma categoria cadastrada ainda.
+    </div>
+
+    <div *ngIf="categorias.length > 0" class="categorias-grid">
+      <div *ngFor="let categoria of categorias" class="categoria-card">
+        <div class="categoria-header">
+          <h4>{{ categoria.nome }}</h4>
+          <span class="tipo-badge" [class]="categoria.tipo.toLowerCase()">{{ categoria.tipo }}</span>
+        </div>
+
+        <div class="categoria-actions">
+          <button (click)="editarCategoria(categoria)" class="btn btn-sm btn-outline">
+            Editar
+          </button>
+          <button (click)="excluirCategoria(categoria)" class="btn btn-sm btn-danger">
+            Excluir
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

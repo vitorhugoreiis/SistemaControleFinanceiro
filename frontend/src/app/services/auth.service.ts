@@ -59,4 +59,36 @@ export class AuthService {
   getUsuarioAtual(): Usuario | null {
     return this.usuarioSubject.value;
   }
+
+  alterarPerfil(usuarioId: number, dados: {
+    senhaAtual: string,
+    novaSenha?: string,
+    confirmacaoNovaSenha?: string,
+    novoEmail?: string
+  }): Observable<Usuario> {
+    return this.http.put<Usuario>(`${this.apiUrl}/${usuarioId}/alterar-perfil`, dados)
+      .pipe(
+        tap(usuarioAtualizado => {
+          localStorage.setItem('usuario', JSON.stringify(usuarioAtualizado));
+          this.usuarioSubject.next(usuarioAtualizado);
+        })
+      );
+  }
+
+  // Métodos de conveniência para manter compatibilidade
+  alterarSenha(usuarioId: number, dados: {senhaAtual: string, novaSenha: string, confirmacaoNovaSenha: string}): Observable<Usuario> {
+    return this.alterarPerfil(usuarioId, dados);
+  }
+
+  alterarEmail(usuarioId: number, dados: {novoEmail: string, senha: string}): Observable<Usuario> {
+    return this.alterarPerfil(usuarioId, {
+      senhaAtual: dados.senha,
+      novoEmail: dados.novoEmail
+    });
+  }
+
+  atualizarUsuario(usuario: Usuario): void {
+    localStorage.setItem('usuario', JSON.stringify(usuario));
+    this.usuarioSubject.next(usuario);
+  }
 }

@@ -1,0 +1,213 @@
+<div class="transacao-container">
+  <div class="header">
+    <h2>Gerenciar Transações</h2>
+  </div>
+
+  <!-- Mensagens de sucesso e erro -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Formulário -->
+  <div class="form-section">
+    <h3>{{ editingTransacao ? 'Editar Transação' : 'Nova Transação' }}</h3>
+    <form [formGroup]="transacaoForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="descricao">Descrição *</label>
+          <input
+            type="text"
+            id="descricao"
+            formControlName="descricao"
+            placeholder="Digite a descrição da transação"
+            [class.error]="transacaoForm.get('descricao')?.invalid && transacaoForm.get('descricao')?.touched"
+          >
+          <div *ngIf="transacaoForm.get('descricao')?.invalid && transacaoForm.get('descricao')?.touched" class="error-message">
+            <span *ngIf="transacaoForm.get('descricao')?.errors?.['required']">Descrição é obrigatória</span>
+            <span *ngIf="transacaoForm.get('descricao')?.errors?.['minlength']">Descrição deve ter pelo menos 3 caracteres</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="valor">Valor *</label>
+          <input
+            type="number"
+            id="valor"
+            formControlName="valor"
+            placeholder="0,00"
+            step="0.01"
+            min="0.01"
+            [class.error]="transacaoForm.get('valor')?.invalid && transacaoForm.get('valor')?.touched"
+          >
+          <div *ngIf="transacaoForm.get('valor')?.invalid && transacaoForm.get('valor')?.touched" class="error-message">
+            <span *ngIf="transacaoForm.get('valor')?.errors?.['required']">Valor é obrigatório</span>
+            <span *ngIf="transacaoForm.get('valor')?.errors?.['min']">Valor deve ser maior que zero</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="data">Data *</label>
+          <input
+            type="date"
+            id="data"
+            formControlName="data"
+            [class.error]="transacaoForm.get('data')?.invalid && transacaoForm.get('data')?.touched"
+          >
+          <div *ngIf="transacaoForm.get('data')?.invalid && transacaoForm.get('data')?.touched" class="error-message">
+            <span *ngIf="transacaoForm.get('data')?.errors?.['required']">Data é obrigatória</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="tipo">Tipo *</label>
+          <select id="tipo" formControlName="tipo">
+            <option value="RECEITA">Receita</option>
+            <option value="DESPESA">Despesa</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="categoriaId">Categoria *</label>
+          <select id="categoriaId" formControlName="categoriaId" [class.error]="transacaoForm.get('categoriaId')?.invalid && transacaoForm.get('categoriaId')?.touched">
+            <option value="">Selecione uma categoria</option>
+            <option *ngFor="let categoria of categorias" [value]="categoria.id">
+              {{ categoria.nome }} ({{ categoria.tipo }})
+            </option>
+          </select>
+          <div *ngIf="transacaoForm.get('categoriaId')?.invalid && transacaoForm.get('categoriaId')?.touched" class="error-message">
+            <span *ngIf="transacaoForm.get('categoriaId')?.errors?.['required']">Categoria é obrigatória</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="subcategoriaId">Subcategoria</label>
+          <select id="subcategoriaId" formControlName="subcategoriaId" [disabled]="subcategorias.length === 0">
+            <option value="">Selecione uma subcategoria (opcional)</option>
+            <option *ngFor="let subcategoria of subcategorias" [value]="subcategoria.id">
+              {{ subcategoria.nome }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="instituicaoId">Instituição *</label>
+          <select id="instituicaoId" formControlName="instituicaoId" [class.error]="transacaoForm.get('instituicaoId')?.invalid && transacaoForm.get('instituicaoId')?.touched">
+            <option value="">Selecione uma instituição</option>
+            <option *ngFor="let instituicao of instituicoes" [value]="instituicao.id">
+              {{ instituicao.nome }} ({{ instituicao.tipo }})
+            </option>
+          </select>
+          <div *ngIf="transacaoForm.get('instituicaoId')?.invalid && transacaoForm.get('instituicaoId')?.touched" class="error-message">
+            <span *ngIf="transacaoForm.get('instituicaoId')?.errors?.['required']">Instituição é obrigatória</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="observacao">Observação</label>
+        <textarea
+          id="observacao"
+          formControlName="observacao"
+          placeholder="Digite uma observação (opcional)"
+          rows="3"
+        ></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="transacaoForm.invalid || loading" class="btn btn-primary">
+          <span *ngIf="loading">Salvando...</span>
+          <span *ngIf="!loading">{{ editingTransacao ? 'Atualizar' : 'Criar' }}</span>
+        </button>
+        <button type="button" *ngIf="editingTransacao" (click)="cancelarEdicao()" class="btn btn-secondary">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filter-section">
+    <div class="filter-row">
+      <div class="form-group">
+        <label for="filtroTipo">Filtrar por Tipo</label>
+        <select id="filtroTipo" [(ngModel)]="filtroTipo" (change)="filtrarTransacoes()">
+          <option value="">Todos os tipos</option>
+          <option value="RECEITA">Receita</option>
+          <option value="DESPESA">Despesa</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="filtroCategoria">Filtrar por Categoria</label>
+        <select id="filtroCategoria" [(ngModel)]="filtroCategoria" (change)="filtrarTransacoes()">
+          <option value="">Todas as categorias</option>
+          <option *ngFor="let categoria of categorias" [value]="categoria.id">
+            {{ categoria.nome }} ({{ categoria.tipo }})
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de transações -->
+  <div class="list-section">
+    <h3>Transações Cadastradas</h3>
+    <div *ngIf="loading && transacoes.length === 0" class="loading">
+      Carregando transações...
+    </div>
+    
+    <div *ngIf="transacoes.length === 0 && !loading" class="empty-state">
+      Nenhuma transação cadastrada ainda.
+    </div>
+
+    <div *ngIf="transacoes.length > 0" class="transacoes-list">
+      <div *ngFor="let transacao of transacoes" class="transacao-card" [class]="transacao.tipo.toLowerCase()">
+        <div class="transacao-header">
+          <div class="transacao-info">
+            <h4>{{ transacao.descricao }}</h4>
+            <span class="transacao-data">{{ formatarData(transacao.data) }}</span>
+          </div>
+          <div class="transacao-valor" [class]="transacao.tipo.toLowerCase()">
+            {{ formatarValor(transacao.valor) }}
+          </div>
+        </div>
+        
+        <div class="transacao-details">
+          <div class="detail-item">
+            <strong>Tipo:</strong> 
+            <span class="tipo-badge" [class]="transacao.tipo.toLowerCase()">{{ transacao.tipo }}</span>
+          </div>
+          <div class="detail-item">
+            <strong>Categoria:</strong> {{ transacao.categoriaNome || 'N/A' }}
+          </div>
+          <div class="detail-item" *ngIf="transacao.subcategoriaNome">
+            <strong>Subcategoria:</strong> {{ transacao.subcategoriaNome }}
+          </div>
+          <div class="detail-item">
+            <strong>Instituição:</strong> {{ transacao.instituicaoNome || 'N/A' }}
+          </div>
+          <div class="detail-item" *ngIf="transacao.observacao">
+            <strong>Observação:</strong> {{ transacao.observacao }}
+          </div>
+        </div>
+        
+        <div class="transacao-actions">
+          <button (click)="editarTransacao(transacao)" class="btn btn-sm btn-outline">
+            Editar
+          </button>
+          <button (click)="excluirTransacao(transacao)" class="btn btn-sm btn-danger">
+            Excluir
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

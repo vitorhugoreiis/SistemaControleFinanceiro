@@ -26,25 +26,6 @@ Antes de começar, certifique-se de ter instalado em seu sistema:
    mvn clean install
    mvn spring-boot:run
    ```
-
-### Opção 2: Usando Maven Wrapper (caso não tenha Maven instalado)
-
-1. Navegue até o diretório do backend:
-   ```bash
-   cd SistemaControleFinanceiro/backend
-   ```
-
-2. Compile e execute o projeto usando Maven Wrapper:
-   ```bash
-   # No Windows
-   .\mvnw.cmd clean install
-   .\mvnw.cmd spring-boot:run
-   
-   # No Linux/Mac
-   ./mvnw clean install
-   ./mvnw spring-boot:run
-   ```
-
 ### Verificação do Backend
 
 Após iniciar o backend, você pode verificar se está funcionando corretamente acessando:

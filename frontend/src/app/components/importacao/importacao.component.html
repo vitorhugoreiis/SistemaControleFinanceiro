@@ -1,0 +1,183 @@
+<div class="importacao-container">
+  <div class="header">
+    <h2>Importação de Extratos</h2>
+    <p>Importe extratos bancários para automatizar o controle financeiro</p>
+  </div>
+
+  <!-- Mensagens de Alerta -->
+  <div class="alert alert-success" *ngIf="successMessage" (click)="limparMensagens()">
+    <i class="material-icons">check_circle</i>
+    {{ successMessage }}
+  </div>
+
+  <div class="alert alert-error" *ngIf="errorMessage" (click)="limparMensagens()">
+    <i class="material-icons">error</i>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Formulário de Importação -->
+  <div class="form-section">
+    <h3>Nova Importação</h3>
+    <form [formGroup]="importacaoForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="dataExtracao">Data de Extração *</label>
+          <input 
+            type="date" 
+            id="dataExtracao" 
+            formControlName="dataExtracao" 
+            class="form-control"
+            [class.invalid]="importacaoForm.get('dataExtracao')?.invalid && importacaoForm.get('dataExtracao')?.touched">
+          <div class="error-message" *ngIf="importacaoForm.get('dataExtracao')?.invalid && importacaoForm.get('dataExtracao')?.touched">
+            Data de extração é obrigatória
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="banco">Banco *</label>
+          <select 
+            id="banco" 
+            formControlName="banco" 
+            class="form-control"
+            [class.invalid]="importacaoForm.get('banco')?.invalid && importacaoForm.get('banco')?.touched">
+            <option value="">Selecione o banco</option>
+            <option *ngFor="let banco of bancos" [value]="banco">{{ banco }}</option>
+          </select>
+          <div class="error-message" *ngIf="importacaoForm.get('banco')?.invalid && importacaoForm.get('banco')?.touched">
+            Banco é obrigatório
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="periodo">Período *</label>
+          <input 
+            type="text" 
+            id="periodo" 
+            formControlName="periodo" 
+            class="form-control" 
+            placeholder="Ex: Janeiro/2024"
+            [class.invalid]="importacaoForm.get('periodo')?.invalid && importacaoForm.get('periodo')?.touched">
+          <div class="error-message" *ngIf="importacaoForm.get('periodo')?.invalid && importacaoForm.get('periodo')?.touched">
+            Período é obrigatório
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="arquivo">Arquivo *</label>
+          <div class="file-input-wrapper">
+            <input 
+              type="file" 
+              id="arquivo" 
+              (change)="onFileSelected($event)" 
+              accept=".csv,.txt,.xls,.xlsx"
+              class="file-input">
+            <div class="file-input-display">
+              <span *ngIf="!selectedFile" class="placeholder">Selecione um arquivo</span>
+              <span *ngIf="selectedFile" class="filename">{{ selectedFile.name }}</span>
+              <i class="material-icons">attach_file</i>
+            </div>
+          </div>
+          <div class="error-message" *ngIf="importacaoForm.get('arquivo')?.invalid && importacaoForm.get('arquivo')?.touched">
+            Arquivo é obrigatório
+          </div>
+          <small class="help-text">Formatos aceitos: CSV, TXT, XLS, XLSX</small>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="resetForm()" [disabled]="loading">
+          <i class="material-icons">clear</i>
+          Limpar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading || importacaoForm.invalid || !selectedFile">
+          <i class="material-icons" *ngIf="!loading">cloud_upload</i>
+          <i class="material-icons spinning" *ngIf="loading">sync</i>
+          {{ loading ? 'Importando...' : 'Importar Arquivo' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filter-section">
+    <h3>Filtrar Registros</h3>
+    <form [formGroup]="filtroForm">
+      <div class="filter-row">
+        <div class="form-group">
+          <label for="filtroBanco">Banco</label>
+          <select id="filtroBanco" formControlName="banco" class="form-control">
+            <option value="">Todos os bancos</option>
+            <option *ngFor="let banco of bancos" [value]="banco">{{ banco }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="dataInicio">Data Início</label>
+          <input type="date" id="dataInicio" formControlName="dataInicio" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="dataFim">Data Fim</label>
+          <input type="date" id="dataFim" formControlName="dataFim" class="form-control">
+        </div>
+
+        <div class="filter-actions">
+          <button type="button" class="btn btn-outline" (click)="aplicarFiltros()">
+            <i class="material-icons">search</i>
+            Filtrar
+          </button>
+          <button type="button" class="btn btn-outline" (click)="limparFiltros()">
+            <i class="material-icons">clear</i>
+            Limpar
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Lista de Registros -->
+  <div class="registros-section">
+    <h3>Histórico de Importações</h3>
+    
+    <div class="registros-list" *ngIf="registros.length > 0; else noRegistros">
+      <div class="registro-item" *ngFor="let registro of registros">
+        <div class="registro-info">
+          <div class="registro-header">
+            <h4>{{ registro.nomeArquivo }}</h4>
+            <span class="banco-badge" [ngClass]="'banco-' + registro.banco.toLowerCase().replace(' ', '-')">
+              {{ registro.banco }}
+            </span>
+          </div>
+          <div class="registro-details">
+            <div class="detail-item">
+              <i class="material-icons">calendar_today</i>
+              <span>Data: {{ formatarData(registro.dataExtracao) }}</span>
+            </div>
+            <div class="detail-item">
+              <i class="material-icons">date_range</i>
+              <span>Período: {{ registro.periodo }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="registro-actions">
+          <button 
+            class="btn btn-danger btn-sm" 
+            (click)="excluirRegistro(registro.id!)" 
+            title="Excluir registro">
+            <i class="material-icons">delete</i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noRegistros>
+      <div class="no-data">
+        <i class="material-icons">cloud_off</i>
+        <p>Nenhum registro de importação encontrado</p>
+        <small>Importe seu primeiro extrato para começar</small>
+      </div>
+    </ng-template>
+  </div>
+</div>

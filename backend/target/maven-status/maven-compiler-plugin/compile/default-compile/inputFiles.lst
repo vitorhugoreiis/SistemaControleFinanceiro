@@ -39,6 +39,7 @@ C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\ex
 C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\config\VirtualThreadConfig.java
 C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\controller\RegistroImportacaoController.java
 C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\controller\UsuarioController.java
+C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\dto\AlterarPerfilDTO.java
 C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\dto\CategoriaDTO.java
 C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\config\SwaggerConfig.java
 C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\dto\PerfilDTO.java

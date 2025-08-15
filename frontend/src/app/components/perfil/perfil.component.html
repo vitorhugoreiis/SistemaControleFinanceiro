@@ -1,0 +1,145 @@
+<div class="perfil-container">
+  <div class="perfil-header">
+    <h2>Meu Perfil</h2>
+    <p>Gerencie suas informações pessoais e configurações de conta</p>
+  </div>
+
+  <!-- Mensagens de sucesso e erro -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <span class="material-icons">check_circle</span>
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    <span class="material-icons">error</span>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Formulário Unificado de Dados Pessoais -->
+  <div class="profile-form-container">
+    <form [formGroup]="perfilForm" (ngSubmit)="onSalvarPerfil()" class="unified-form">
+      
+      <!-- Seção Info Básica -->
+      <div class="profile-header-section">
+        <div class="user-basic-info">
+          <h3>{{ usuario?.nome }}</h3>
+          <p class="user-email">{{ usuario?.email }}</p>
+        </div>
+      </div>
+
+      <!-- Seção Dados Pessoais -->
+      <div class="form-section">
+        <h4>
+          <span class="material-icons">person</span>
+          Informações Pessoais
+        </h4>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nome">Nome Completo</label>
+            <input 
+              type="text" 
+              id="nome" 
+              formControlName="nome" 
+              placeholder="Digite seu nome completo"
+              [class.is-invalid]="perfilForm.get('nome')?.invalid && perfilForm.get('nome')?.touched"
+            >
+            <div *ngIf="perfilForm.get('nome')?.invalid && perfilForm.get('nome')?.touched" class="error-message">
+              <span *ngIf="perfilForm.get('nome')?.errors?.['required']">Nome é obrigatório</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input 
+              type="email" 
+              id="email" 
+              formControlName="email" 
+              placeholder="Digite seu email"
+              [class.is-invalid]="perfilForm.get('email')?.invalid && perfilForm.get('email')?.touched"
+            >
+            <div *ngIf="perfilForm.get('email')?.invalid && perfilForm.get('email')?.touched" class="error-message">
+              <span *ngIf="perfilForm.get('email')?.errors?.['required']">Email é obrigatório</span>
+              <span *ngIf="perfilForm.get('email')?.errors?.['email']">Email deve ter um formato válido</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção Alteração de Senha -->
+      <div class="form-section">
+        <h4>
+          <span class="material-icons">lock</span>
+          Alterar Senha
+          <small>(Opcional - deixe em branco para manter a senha atual)</small>
+        </h4>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="novaSenha">Nova Senha</label>
+            <input 
+              type="password" 
+              id="novaSenha" 
+              formControlName="novaSenha" 
+              placeholder="Digite uma nova senha (opcional)"
+              [class.is-invalid]="perfilForm.get('novaSenha')?.invalid && perfilForm.get('novaSenha')?.touched"
+            >
+            <div *ngIf="perfilForm.get('novaSenha')?.invalid && perfilForm.get('novaSenha')?.touched" class="error-message">
+              <span *ngIf="perfilForm.get('novaSenha')?.errors?.['minlength']">Nova senha deve ter pelo menos 6 caracteres</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmacaoNovaSenha">Confirmar Nova Senha</label>
+            <input 
+              type="password" 
+              id="confirmacaoNovaSenha" 
+              formControlName="confirmacaoNovaSenha" 
+              placeholder="Confirme a nova senha"
+              [class.is-invalid]="(perfilForm.get('confirmacaoNovaSenha')?.invalid || perfilForm.hasError('notSame')) && perfilForm.get('confirmacaoNovaSenha')?.touched"
+            >
+            <div *ngIf="(perfilForm.get('confirmacaoNovaSenha')?.invalid || perfilForm.hasError('notSame')) && perfilForm.get('confirmacaoNovaSenha')?.touched" class="error-message">
+              <span *ngIf="perfilForm.hasError('notSame')">As senhas não conferem</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção Confirmação -->
+      <div class="form-section confirmation-section">
+        <h4>
+          <span class="material-icons">security</span>
+          Confirmação de Segurança
+        </h4>
+        
+        <div class="form-group">
+          <label for="senhaAtual">Senha Atual *</label>
+          <input 
+            type="password" 
+            id="senhaAtual" 
+            formControlName="senhaAtual" 
+            placeholder="Digite sua senha atual para confirmar as alterações"
+            [class.is-invalid]="perfilForm.get('senhaAtual')?.invalid && perfilForm.get('senhaAtual')?.touched"
+          >
+          <div *ngIf="perfilForm.get('senhaAtual')?.invalid && perfilForm.get('senhaAtual')?.touched" class="error-message">
+            <span *ngIf="perfilForm.get('senhaAtual')?.errors?.['required']">Senha atual é obrigatória para confirmar as alterações</span>
+          </div>
+          <small class="form-help">Por segurança, sempre solicitamos sua senha atual para confirmar alterações no perfil.</small>
+        </div>
+      </div>
+
+      <!-- Botões de Ação -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="resetForm()">
+          <span class="material-icons">refresh</span>
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="perfilForm.invalid || loading">
+          <span *ngIf="loading" class="material-icons spinning">refresh</span>
+          <span *ngIf="!loading" class="material-icons">save</span>
+          {{ loading ? 'Salvando...' : 'Salvar Alterações' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

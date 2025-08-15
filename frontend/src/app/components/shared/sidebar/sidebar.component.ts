@@ -16,7 +16,8 @@ export class SidebarComponent {
     { label: 'Subcategorias', icon: 'subdirectory_arrow_right', route: '/subcategorias' },
     { label: 'Instituições', icon: 'account_balance', route: '/instituicoes' },
     { label: 'Transações', icon: 'swap_horiz', route: '/transacoes' },
-    { label: 'Importações', icon: 'upload_file', route: '/importacoes' }
+    { label: 'Importações', icon: 'upload_file', route: '/importacoes' },
+    { label: 'Perfil', icon: 'person', route: '/perfil' }
   ];
 
   constructor(private authService: AuthService, private router: Router) {

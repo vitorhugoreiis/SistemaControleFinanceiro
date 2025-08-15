@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.financeiro.dto.AlterarPerfilDTO;
 import com.financeiro.dto.LoginRequestDTO;
 import com.financeiro.dto.LoginResponseDTO;
 import com.financeiro.dto.UsuarioCadastroDTO;
@@ -58,5 +59,11 @@ public class UsuarioController {
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         usuarioService.excluir(id);
         return ResponseEntity.noContent().build();
+    }
+    
+    @PutMapping("/{id}/alterar-perfil")
+    public ResponseEntity<UsuarioDTO> alterarPerfil(@PathVariable Long id, @Valid @RequestBody AlterarPerfilDTO dto) {
+        UsuarioDTO usuarioAtualizado = usuarioService.alterarPerfil(id, dto);
+        return ResponseEntity.ok(usuarioAtualizado);
     }
 }
