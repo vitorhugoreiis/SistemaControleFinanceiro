@@ -78,12 +78,14 @@ export class VisualizarTransacoesComponent implements OnInit {
 
     // Filtro por categoria
     if (this.filtroCategoria) {
-      transacoesFiltradas = transacoesFiltradas.filter(t => t.categoriaId === this.filtroCategoria);
+      const categoriaIdFiltro = Number(this.filtroCategoria);
+      transacoesFiltradas = transacoesFiltradas.filter(t => t.categoriaId === categoriaIdFiltro);
     }
 
     // Filtro por instituição
     if (this.filtroInstituicao) {
-      transacoesFiltradas = transacoesFiltradas.filter(t => t.instituicaoId === this.filtroInstituicao);
+      const instituicaoIdFiltro = Number(this.filtroInstituicao);
+      transacoesFiltradas = transacoesFiltradas.filter(t => t.instituicaoId === instituicaoIdFiltro);
     }
 
     // Filtro por período
