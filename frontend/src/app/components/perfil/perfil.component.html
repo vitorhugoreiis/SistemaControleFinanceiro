@@ -142,4 +142,22 @@
       </div>
     </form>
   </div>
+
+  <!-- Seção Administrativa (apenas para administradores) -->
+  <div *ngIf="isAdministrador()" class="admin-section">
+    <div class="admin-header">
+      <h3>
+        <span class="material-icons">admin_panel_settings</span>
+        Administração do Sistema
+      </h3>
+      <p>Funcionalidades administrativas disponíveis</p>
+    </div>
+    
+    <div class="admin-actions">
+      <button type="button" class="btn btn-admin" (click)="navegarParaAdminUsuarios()">
+        <span class="material-icons">people</span>
+        Gerenciar Usuários
+      </button>
+    </div>
+  </div>
 </div>

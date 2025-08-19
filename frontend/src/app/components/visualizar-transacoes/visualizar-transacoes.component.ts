@@ -29,7 +29,7 @@ export class VisualizarTransacoesComponent implements OnInit {
   
   // Paginação
   paginaAtual = 1;
-  itensPorPagina = 10;
+  itensPorPagina: number = 10;
   totalItens = 0;
   
   // Ordenação
@@ -205,5 +205,10 @@ export class VisualizarTransacoesComponent implements OnInit {
 
   formatarData(data: string): string {
     return new Date(data).toLocaleDateString('pt-BR');
+  }
+
+  onItensPorPaginaChange(): void {
+    this.paginaAtual = 1; // Reset para primeira página
+    this.aplicarFiltros();
   }
 }

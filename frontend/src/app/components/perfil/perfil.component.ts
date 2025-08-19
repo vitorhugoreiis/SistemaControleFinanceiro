@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { Usuario } from '../../models/usuario.model';
+import { Usuario, TipoUsuario } from '../../models/usuario.model';
 
 @Component({
   selector: 'app-perfil',
@@ -20,7 +21,8 @@ export class PerfilComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {
     this.perfilForm = this.formBuilder.group({
       nome: ['', [Validators.required]],
@@ -181,5 +183,13 @@ export class PerfilComponent implements OnInit {
   private clearMessages(): void {
     this.successMessage = '';
     this.errorMessage = '';
+  }
+
+  isAdministrador(): boolean {
+    return this.usuario?.tipoUsuario === TipoUsuario.ADMINISTRADOR;
+  }
+
+  navegarParaAdminUsuarios(): void {
+    this.router.navigate(['/admin/usuarios']);
   }
 }

@@ -23,31 +23,44 @@ export class SidebarComponent implements OnInit {
   // Expor o router para uso no template
   public router: Router;
   menuItems: MenuItem[] = [
-    { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
-    { 
-      label: 'Lançamentos', 
-      icon: 'swap_horiz', 
-      route: '/transacoes',
+    {
+      label: 'Dashboard',
+      icon: 'dashboard',
+      route: '/dashboard'
+    },
+    {
+      label: 'Lançamentos',
+      icon: 'account_balance_wallet',
       hasSubmenu: true,
       showSubmenu: false,
       submenuItems: [
-        { label: 'Novo Lançamento', icon: 'add', route: '/transacoes' },
-        { label: 'Visualizar Lançamentos', icon: 'list', route: '/transacoes/visualizar' }
+        { label: 'Nova Transação', icon: 'add', route: '/transacao/nova' },
+        { label: 'Visualizar', icon: 'visibility', route: '/transacoes' }
       ]
     },
-    { 
-      label: 'Categorias', 
-      icon: 'category', 
-      route: '/categorias',
+    {
+      label: 'Categorias',
+      icon: 'category',
       hasSubmenu: true,
       showSubmenu: false,
       submenuItems: [
-        { label: 'Subcategorias', icon: 'subdirectory_arrow_right', route: '/subcategorias' }
+        { label: 'Gerenciar Categorias', icon: 'list', route: '/categorias' },
+        { label: 'Gerenciar Subcategorias', icon: 'subdirectory_arrow_right', route: '/subcategorias' }
       ]
     },
-    { label: 'Instituições', icon: 'account_balance', route: '/instituicoes' },
-    { label: 'Importações', icon: 'upload_file', route: '/importacoes' }
+    {
+      label: 'Instituições',
+      icon: 'business',
+      route: '/instituicoes'
+    },
+    {
+      label: 'Importações',
+      icon: 'cloud_upload',
+      route: '/importacao'
+    }
   ];
+
+
 
 
 
