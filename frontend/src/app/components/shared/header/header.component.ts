@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { AdminService } from '../../../services/admin.service';
-import { Usuario, TipoUsuario } from '../../../models/usuario.model';
+import { Usuario } from '../../../models/usuario.model';
 
 @Component({
   selector: 'app-header',

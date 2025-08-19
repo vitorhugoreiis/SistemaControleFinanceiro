@@ -51,8 +51,9 @@ export class ImportacaoComponent implements OnInit {
     this.carregarRegistros();
   }
 
-  onFileSelected(event: any): void {
-    const file = event.target.files[0];
+  onFileSelected(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
     if (file) {
       this.selectedFile = file;
       this.importacaoForm.patchValue({
@@ -79,14 +80,14 @@ export class ImportacaoComponent implements OnInit {
     formData.append('periodo', this.importacaoForm.get('periodo')?.value);
 
     this.registroImportacaoService.importarArquivo(formData).subscribe({
-      next: (response: RegistroImportacao) => {
+      next: () => {
         this.successMessage = 'Arquivo importado com sucesso!';
         this.errorMessage = '';
         this.resetForm();
         this.carregarRegistros();
         this.loading = false;
       },
-      error: (error: any) => {
+      error: (error: Error) => {
         console.error('Erro na importação:', error);
         this.errorMessage = 'Erro ao importar arquivo. Verifique o formato e tente novamente.';
         this.successMessage = '';
@@ -102,7 +103,7 @@ export class ImportacaoComponent implements OnInit {
         this.registros = registros;
         this.loading = false;
       },
-      error: (error: any) => {
+      error: (error: Error) => {
         console.error('Erro ao carregar registros:', error);
         this.errorMessage = 'Erro ao carregar registros de importação';
         this.successMessage = '';
@@ -132,7 +133,7 @@ export class ImportacaoComponent implements OnInit {
           this.errorMessage = '';
           this.carregarRegistros();
         },
-        error: (error: any) => {
+        error: (error: Error) => {
           console.error('Erro ao excluir registro:', error);
           this.errorMessage = 'Erro ao excluir registro';
           this.successMessage = '';

@@ -97,7 +97,12 @@ export class PerfilComponent implements OnInit {
     this.clearMessages();
     
     // Preparar dados para o backend
-    const alterarPerfilData: any = {};
+    const alterarPerfilData: {
+      senhaAtual?: string;
+      novaSenha?: string;
+      confirmacaoNovaSenha?: string;
+      novoEmail?: string;
+    } = {};
     
     // Incluir senha atual apenas se houver mudança de senha
     if (isPasswordChange) {
