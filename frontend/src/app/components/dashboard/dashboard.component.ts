@@ -15,9 +15,9 @@ export class DashboardComponent implements OnInit {
   errorMessage = '';
   
   // Para gráficos
-  receitasChartData: any;
-  despesasChartData: any;
-  balanceChartData: any;
+  receitasChartData: { labels: string[], datasets: { label?: string, data: number[], backgroundColor?: string[], borderColor?: string[], borderWidth?: number }[] } | null = null;
+  despesasChartData: { labels: string[], datasets: { label?: string, data: number[], backgroundColor?: string[], borderColor?: string[], borderWidth?: number }[] } | null = null;
+  balanceChartData: { labels: string[], datasets: { label?: string, data: number[], backgroundColor?: string[], borderColor?: string[], borderWidth?: number }[] } | null = null;
   
   // Para controle das abas
   activeTab: string = 'receitas';
@@ -35,7 +35,7 @@ export class DashboardComponent implements OnInit {
       y: {
         beginAtZero: true,
         ticks: {
-          callback: function(value: any) {
+          callback: function(value: number | string) {
             return 'R$ ' + value.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
           }
         }

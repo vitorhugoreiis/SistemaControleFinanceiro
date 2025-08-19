@@ -435,7 +435,7 @@ export class TransacaoComponent implements OnInit {
   criarCategoria(): void {
     if (this.categoriaForm.valid && this.perfilAtual) {
       this.salvandoCategoria = true;
-      const novaCategoria: any = {
+      const novaCategoria: Categoria = {
         nome: this.categoriaForm.get('nome')?.value,
         tipo: this.categoriaForm.get('tipo')?.value,
         perfilId: this.perfilAtual.id

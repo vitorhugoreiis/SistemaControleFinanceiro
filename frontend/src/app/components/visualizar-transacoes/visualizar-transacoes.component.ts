@@ -117,7 +117,7 @@ export class VisualizarTransacoesComponent implements OnInit {
 
   ordenarTransacoes(transacoes: Transacao[]): void {
     transacoes.sort((a, b) => {
-      let valorA: any, valorB: any;
+      let valorA: Date | number | string, valorB: Date | number | string;
       
       switch (this.campoOrdenacao) {
         case 'data':

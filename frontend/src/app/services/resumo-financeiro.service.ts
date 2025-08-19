@@ -22,7 +22,7 @@ export class ResumoFinanceiroService {
       throw new Error('Usuário não autenticado');
     }
     
-    let params = new HttpParams()
+    const params = new HttpParams()
       .set('dataInicio', dataInicio)
       .set('dataFim', dataFim);
     

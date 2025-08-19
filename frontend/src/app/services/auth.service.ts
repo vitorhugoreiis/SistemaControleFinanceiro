@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Usuario, UsuarioCadastro } from '../models/usuario.model';
+import { LoginResponse } from '../models/login.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -25,8 +26,8 @@ export class AuthService {
     }
   }
 
-  login(email: string, senha: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/login`, { email, senha })
+  login(email: string, senha: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { email, senha })
       .pipe(
         tap(response => {
           if (response && response.usuario) {

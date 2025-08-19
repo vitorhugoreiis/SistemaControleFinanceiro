@@ -14,8 +14,8 @@ export class AppComponent {
 
   constructor(private router: Router, private authService: AuthService) {
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: any) => {
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
       // Não mostrar sidebar nas páginas de login e cadastro
       this.showSidebar = !event.url.includes('/login') && !event.url.includes('/cadastro');
     });

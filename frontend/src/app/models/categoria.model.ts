@@ -3,4 +3,5 @@ export interface Categoria {
     nome: string;
     tipo: 'Receita' | 'Despesa';
     usuarioId?: number;
+    perfilId?: number;
 }

@@ -36,7 +36,7 @@ export class AdminUsuariosComponent implements OnInit {
     this.carregarUsuarios();
   }
 
-  checkPasswords(group: FormGroup) {
+  checkPasswords(group: FormGroup): { [key: string]: boolean } | null {
     const senha = group.get('senha')?.value;
     const confirmacaoSenha = group.get('confirmacaoSenha')?.value;
     return senha === confirmacaoSenha ? null : { notSame: true };
@@ -49,7 +49,7 @@ export class AdminUsuariosComponent implements OnInit {
         this.usuarios = usuarios;
         this.loading = false;
       },
-      error: (error) => {
+      error: () => {
         this.errorMessage = 'Erro ao carregar usuários.';
         this.loading = false;
       }

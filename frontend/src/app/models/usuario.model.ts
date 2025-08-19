@@ -1,6 +1,7 @@
 export enum TipoUsuario {
     COMUM = 'COMUM',
-    ADMINISTRADOR = 'ADMINISTRADOR'
+    ADMINISTRADOR = 'ADMINISTRADOR',
+    ADVOGADO = 'ADVOGADO'
 }
 
 export interface Usuario {

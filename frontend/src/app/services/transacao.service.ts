@@ -47,7 +47,7 @@ export class TransacaoService {
   }
 
   listarPorPeriodo(dataInicio: string, dataFim: string): Observable<Transacao[]> {
-    let params = new HttpParams()
+    const params = new HttpParams()
       .set('dataInicio', dataInicio)
       .set('dataFim', dataFim);
     return this.http.get<Transacao[]>(`${this.apiUrl}/periodo`, { params });
@@ -64,7 +64,8 @@ export class TransacaoService {
     if (transacao.perfilId) {
       params = params.set('perfilId', transacao.perfilId.toString());
       // Remover perfilId do corpo da requisição
-      const { perfilId, ...transacaoSemPerfilId } = transacao;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { perfilId: _, ...transacaoSemPerfilId } = transacao;
       return this.http.post<Transacao>(this.apiUrl, transacaoSemPerfilId, { params });
     }
     
