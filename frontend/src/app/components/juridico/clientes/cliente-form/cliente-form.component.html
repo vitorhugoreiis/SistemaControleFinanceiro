@@ -1,0 +1,212 @@
+<div class="cliente-form-container">
+  <div class="form-header">
+    <h2>
+      <i class="fas fa-user-plus" *ngIf="!isEdicao"></i>
+      <i class="fas fa-user-edit" *ngIf="isEdicao"></i>
+      {{ isEdicao ? 'Editar Cliente' : 'Novo Cliente' }}
+    </h2>
+    <button type="button" class="btn btn-secondary" (click)="cancelar()" [disabled]="salvando">
+      <i class="fas fa-times"></i>
+      Cancelar
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="carregando" class="loading-container">
+    <div class="spinner"></div>
+    <p>Carregando dados do cliente...</p>
+  </div>
+
+  <!-- Error Alert -->
+  <div *ngIf="erro" class="alert alert-error">
+    <i class="fas fa-exclamation-triangle"></i>
+    {{ erro }}
+  </div>
+
+  <!-- Success Alert -->
+  <div *ngIf="sucesso" class="alert alert-success">
+    <i class="fas fa-check-circle"></i>
+    {{ sucesso }}
+  </div>
+
+  <!-- Form -->
+  <form [formGroup]="clienteForm" (ngSubmit)="onSubmit()" *ngIf="!carregando" class="cliente-form">
+    <div class="form-grid">
+      <!-- Nome -->
+      <div class="form-group full-width">
+        <label for="nome" class="form-label required">Nome Completo</label>
+        <input
+          type="text"
+          id="nome"
+          formControlName="nome"
+          class="form-input"
+          [class.invalid]="isCampoInvalido('nome')"
+          placeholder="Digite o nome completo do cliente"
+        >
+        <div *ngIf="isCampoInvalido('nome')" class="error-message">
+          {{ obterMensagemErroCampo('nome') }}
+        </div>
+      </div>
+
+      <!-- CPF/CNPJ -->
+      <div class="form-group">
+        <label for="cpfCnpj" class="form-label required">CPF/CNPJ</label>
+        <input
+          type="text"
+          id="cpfCnpj"
+          formControlName="cpfCnpj"
+          class="form-input"
+          [class.invalid]="isCampoInvalido('cpfCnpj')"
+          placeholder="000.000.000-00 ou 00.000.000/0000-00"
+          (input)="onCpfCnpjChange($event)"
+          maxlength="18"
+        >
+        <div *ngIf="isCampoInvalido('cpfCnpj')" class="error-message">
+          {{ obterMensagemErroCampo('cpfCnpj') }}
+        </div>
+      </div>
+
+      <!-- Telefone -->
+      <div class="form-group">
+        <label for="telefone" class="form-label">Telefone</label>
+        <input
+          type="text"
+          id="telefone"
+          formControlName="telefone"
+          class="form-input"
+          [class.invalid]="isCampoInvalido('telefone')"
+          placeholder="(00) 00000-0000"
+          (input)="onTelefoneChange($event)"
+          maxlength="15"
+        >
+        <div *ngIf="isCampoInvalido('telefone')" class="error-message">
+          {{ obterMensagemErroCampo('telefone') }}
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group full-width">
+        <label for="email" class="form-label">Email</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-input"
+          [class.invalid]="isCampoInvalido('email')"
+          placeholder="cliente@exemplo.com"
+        >
+        <div *ngIf="isCampoInvalido('email')" class="error-message">
+          {{ obterMensagemErroCampo('email') }}
+        </div>
+      </div>
+
+      <!-- Endereço -->
+      <div class="form-group full-width">
+        <label for="endereco" class="form-label">Endereço</label>
+        <input
+          type="text"
+          id="endereco"
+          formControlName="endereco"
+          class="form-input"
+          [class.invalid]="isCampoInvalido('endereco')"
+          placeholder="Rua, número, bairro"
+        >
+        <div *ngIf="isCampoInvalido('endereco')" class="error-message">
+          {{ obterMensagemErroCampo('endereco') }}
+        </div>
+      </div>
+
+      <!-- Cidade -->
+      <div class="form-group">
+        <label for="cidade" class="form-label">Cidade</label>
+        <input
+          type="text"
+          id="cidade"
+          formControlName="cidade"
+          class="form-input"
+          [class.invalid]="isCampoInvalido('cidade')"
+          placeholder="Nome da cidade"
+        >
+        <div *ngIf="isCampoInvalido('cidade')" class="error-message">
+          {{ obterMensagemErroCampo('cidade') }}
+        </div>
+      </div>
+
+      <!-- Estado -->
+      <div class="form-group">
+        <label for="estado" class="form-label">Estado</label>
+        <select
+          id="estado"
+          formControlName="estado"
+          class="form-select"
+          [class.invalid]="isCampoInvalido('estado')"
+        >
+          <option value="">Selecione o estado</option>
+          <option *ngFor="let estado of obterEstados()" [value]="estado.sigla">
+            {{ estado.nome }} ({{ estado.sigla }})
+          </option>
+        </select>
+        <div *ngIf="isCampoInvalido('estado')" class="error-message">
+          {{ obterMensagemErroCampo('estado') }}
+        </div>
+      </div>
+
+      <!-- CEP -->
+      <div class="form-group">
+        <label for="cep" class="form-label">CEP</label>
+        <input
+          type="text"
+          id="cep"
+          formControlName="cep"
+          class="form-input"
+          [class.invalid]="isCampoInvalido('cep')"
+          placeholder="00000-000"
+          (input)="onCepChange($event)"
+          maxlength="9"
+        >
+        <div *ngIf="isCampoInvalido('cep')" class="error-message">
+          {{ obterMensagemErroCampo('cep') }}
+        </div>
+      </div>
+
+      <!-- Observações -->
+      <div class="form-group full-width">
+        <label for="observacoes" class="form-label">Observações</label>
+        <textarea
+          id="observacoes"
+          formControlName="observacoes"
+          class="form-textarea"
+          [class.invalid]="isCampoInvalido('observacoes')"
+          placeholder="Informações adicionais sobre o cliente"
+          rows="4"
+        ></textarea>
+        <div *ngIf="isCampoInvalido('observacoes')" class="error-message">
+          {{ obterMensagemErroCampo('observacoes') }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="cancelar()"
+        [disabled]="salvando"
+      >
+        <i class="fas fa-times"></i>
+        Cancelar
+      </button>
+      
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="clienteForm.invalid || salvando"
+      >
+        <i class="fas fa-spinner fa-spin" *ngIf="salvando"></i>
+        <i class="fas fa-save" *ngIf="!salvando"></i>
+        {{ salvando ? 'Salvando...' : (isEdicao ? 'Atualizar' : 'Criar') }} Cliente
+      </button>
+    </div>
+  </form>
+</div>

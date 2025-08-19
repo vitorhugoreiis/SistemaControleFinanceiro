@@ -59,6 +59,11 @@ public class UsuarioService {
                 .map(this::converterParaDTO);
     }
     
+    public Usuario buscarUsuarioPorEmail(String email) {
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    }
+    
     public UsuarioDTO cadastrar(UsuarioCadastroDTO dto) {
         if (!dto.getSenha().equals(dto.getConfirmacaoSenha())) {
             throw new RuntimeException("As senhas não conferem");
@@ -72,6 +77,7 @@ public class UsuarioService {
         usuario.setNome(dto.getNome());
         usuario.setEmail(dto.getEmail());
         usuario.setSenhaHash(passwordEncoder.encode(dto.getSenha())); // Agora a senha é criptografada
+        usuario.setTipoUsuario(dto.getTipoUsuario() != null ? dto.getTipoUsuario() : TipoUsuario.COMUM);
         
         usuario = usuarioRepository.save(usuario);
         
@@ -198,6 +204,14 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
         usuario.setTipoUsuario(TipoUsuario.COMUM);
+        usuario = usuarioRepository.save(usuario);
+        return converterParaDTO(usuario);
+    }
+    
+    public UsuarioDTO promoverParaAdvogado(Long usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        usuario.setTipoUsuario(TipoUsuario.ADVOGADO);
         usuario = usuarioRepository.save(usuario);
         return converterParaDTO(usuario);
     }

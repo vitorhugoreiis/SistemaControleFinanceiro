@@ -102,6 +102,12 @@ public class AdminController {
         return ResponseEntity.ok(usuarioService.rebaixarParaComum(id));
     }
     
+    @PutMapping("/usuarios/{id}/promover-advogado")
+    public ResponseEntity<UsuarioDTO> promoverParaAdvogado(@PathVariable Long id) {
+        verificarPermissaoAdmin();
+        return ResponseEntity.ok(usuarioService.promoverParaAdvogado(id));
+    }
+    
     @GetMapping("/verificar-permissao")
     public ResponseEntity<Boolean> verificarPermissaoAdministrador() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

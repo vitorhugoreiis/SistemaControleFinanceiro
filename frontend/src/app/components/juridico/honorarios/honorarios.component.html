@@ -1,0 +1,260 @@
+<div class="honorarios-container">
+  <!-- Header -->
+  <div class="honorarios-header">
+    <h1>
+      <i class="fas fa-money-bill-wave"></i>
+      Gestão de Honorários
+    </h1>
+    <div class="header-actions">
+      <button type="button" class="btn btn-primary" (click)="carregarHonorarios()">
+        <i class="fas fa-sync-alt"></i>
+        Atualizar
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="carregando" class="loading-container">
+    <div class="spinner"></div>
+    <p>Carregando dados dos honorários...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="erro" class="error-container">
+    <i class="fas fa-exclamation-triangle"></i>
+    <h3>Erro ao carregar honorários</h3>
+    <p>{{ erro }}</p>
+    <button type="button" class="btn btn-primary" (click)="carregarHonorarios()">
+      <i class="fas fa-redo"></i>
+      Tentar Novamente
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!carregando && !erro" class="honorarios-content">
+    <!-- Estatísticas -->
+    <div class="estatisticas-section">
+      <div class="estatistica-card total">
+        <div class="card-icon">
+          <i class="fas fa-gavel"></i>
+        </div>
+        <div class="card-content">
+          <h3>Total de Casos</h3>
+          <span class="value">{{ estatisticas.totalCasos }}</span>
+        </div>
+      </div>
+
+      <div class="estatistica-card valor-total">
+        <div class="card-icon">
+          <i class="fas fa-dollar-sign"></i>
+        </div>
+        <div class="card-content">
+          <h3>Valor Total</h3>
+          <span class="value">{{ formatarMoeda(estatisticas.valorTotalHonorarios) }}</span>
+        </div>
+      </div>
+
+      <div class="estatistica-card valor-pago">
+        <div class="card-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="card-content">
+          <h3>Valor Recebido</h3>
+          <span class="value">{{ formatarMoeda(estatisticas.valorPago) }}</span>
+          <small>{{ estatisticas.percentualRecebimento.toFixed(1) }}% do total</small>
+        </div>
+      </div>
+
+      <div class="estatistica-card valor-pendente">
+        <div class="card-icon">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="card-content">
+          <h3>Valor Pendente</h3>
+          <span class="value">{{ formatarMoeda(estatisticas.valorPendente) }}</span>
+        </div>
+      </div>
+
+      <div class="estatistica-card casos-atraso" *ngIf="estatisticas.casosComAtraso > 0">
+        <div class="card-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="card-content">
+          <h3>Casos em Atraso</h3>
+          <span class="value">{{ estatisticas.casosComAtraso }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filtros-section">
+      <div class="filtros-grid">
+        <div class="filtro-group">
+          <label for="filtroStatus">Status do Pagamento:</label>
+          <select
+            id="filtroStatus"
+            [(ngModel)]="filtroStatus"
+            (change)="onFiltroChange()"
+            class="form-select"
+          >
+            <option value="todos">Todos</option>
+            <option value="pagos">Pagos</option>
+            <option value="pendentes">Pendentes</option>
+            <option value="atraso">Em Atraso</option>
+          </select>
+        </div>
+
+        <div class="filtro-group">
+          <label for="filtroCliente">Cliente:</label>
+          <input
+            type="text"
+            id="filtroCliente"
+            [(ngModel)]="filtroCliente"
+            (input)="onFiltroChange()"
+            class="form-input"
+            placeholder="Nome ou CPF/CNPJ do cliente"
+          >
+        </div>
+
+        <div class="filtro-group">
+          <label for="ordenacao">Ordenar por:</label>
+          <select
+            id="ordenacao"
+            [(ngModel)]="ordenacao"
+            (change)="onFiltroChange()"
+            class="form-select"
+          >
+            <option value="valor-desc">Maior Valor</option>
+            <option value="valor-asc">Menor Valor</option>
+            <option value="cliente">Cliente (A-Z)</option>
+            <option value="data">Data Mais Recente</option>
+            <option value="atraso">Maior Atraso</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de Honorários -->
+    <div class="honorarios-lista">
+      <div *ngIf="honorariosFiltrados.length === 0" class="empty-state">
+        <i class="fas fa-search"></i>
+        <h3>Nenhum honorário encontrado</h3>
+        <p>Não há honorários que correspondam aos filtros aplicados.</p>
+      </div>
+
+      <div *ngFor="let honorario of honorariosFiltrados" class="honorario-card">
+        <!-- Header do Card -->
+        <div class="card-header">
+          <div class="caso-info">
+            <h3 (click)="verCaso(honorario.caso)" class="caso-titulo">
+              {{ honorario.caso.descricao }}
+            </h3>
+            <div class="caso-meta">
+              <span class="status-badge" [style.background-color]="obterCorStatus(honorario.caso.status)">
+                <i [class]="obterIconeStatus(honorario.caso.status)"></i>
+                {{ obterLabelStatus(honorario.caso.status) }}
+              </span>
+              <span class="data-inicio">
+                <i class="fas fa-calendar-alt"></i>
+                {{ formatarData(honorario.caso.dataInicio) }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="valor-principal">
+            <span class="valor">{{ formatarMoeda(honorario.valorTotal) }}</span>
+            <div class="status-pagamento" [style.color]="obterCorPagamento(honorario)">
+              <i [class]="obterIconePagamento(honorario)"></i>
+              {{ obterTextoPagamento(honorario) }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Cliente Info -->
+        <div class="cliente-section">
+          <div class="cliente-avatar" [style.background-color]="gerarCorAvatar(honorario.cliente.nome)">
+            {{ obterIniciais(honorario.cliente.nome) }}
+          </div>
+          <div class="cliente-info">
+            <h4 (click)="verCliente(honorario.cliente)" class="cliente-nome">
+              {{ honorario.cliente.nome }}
+            </h4>
+            <span class="cliente-documento">{{ formatarCpfCnpj(honorario.cliente.cpfCnpj) }}</span>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progresso-section" *ngIf="honorario.valorTotal > 0">
+          <div class="progresso-header">
+            <span>Progresso do Pagamento</span>
+            <span class="percentual">{{ honorario.percentualPago.toFixed(1) }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div 
+              class="progress-fill" 
+              [style.width.%]="honorario.percentualPago"
+              [style.background-color]="obterCorPagamento(honorario)"
+            ></div>
+          </div>
+          <div class="valores-detalhes">
+            <div class="valor-item pago">
+              <span class="label">Pago:</span>
+              <span class="valor">{{ formatarMoeda(honorario.valorPago) }}</span>
+            </div>
+            <div class="valor-item pendente">
+              <span class="label">Pendente:</span>
+              <span class="valor">{{ formatarMoeda(honorario.valorPendente) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alerta de Atraso -->
+        <div *ngIf="honorario.diasAtraso && honorario.diasAtraso > 0" class="alerta-atraso">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span>Pagamento em atraso há {{ honorario.diasAtraso }} dias</span>
+        </div>
+
+        <!-- Actions -->
+        <div class="card-actions" *ngIf="podeEditar">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline"
+            (click)="verCaso(honorario.caso)"
+          >
+            <i class="fas fa-eye"></i>
+            Ver Caso
+          </button>
+          
+          <button
+            type="button"
+            class="btn btn-sm btn-secondary"
+            (click)="editarCaso(honorario.caso)"
+          >
+            <i class="fas fa-edit"></i>
+            Editar
+          </button>
+
+          <button
+            *ngIf="!honorario.caso.honorariosPagos"
+            type="button"
+            class="btn btn-sm btn-success"
+            (click)="marcarComoPago(honorario)"
+          >
+            <i class="fas fa-check"></i>
+            Marcar como Pago
+          </button>
+
+          <button
+            *ngIf="honorario.caso.honorariosPagos"
+            type="button"
+            class="btn btn-sm btn-warning"
+            (click)="marcarComoPendente(honorario)"
+          >
+            <i class="fas fa-undo"></i>
+            Marcar como Pendente
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

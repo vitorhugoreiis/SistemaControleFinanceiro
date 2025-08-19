@@ -1,0 +1,212 @@
+<div class="cliente-detalhes-container">
+  <!-- Header -->
+  <div class="detalhes-header">
+    <div class="header-left">
+      <button class="btn btn-back" (click)="voltarParaLista()">
+        <i class="fas fa-arrow-left"></i>
+        Voltar
+      </button>
+      <h2>
+        <i class="fas fa-user"></i>
+        Detalhes do Cliente
+      </h2>
+    </div>
+    <div class="header-actions" *ngIf="cliente">
+      <button class="btn btn-secondary" (click)="editarCliente()">
+        <i class="fas fa-edit"></i>
+        Editar
+      </button>
+      <button class="btn btn-danger" (click)="excluirCliente()">
+        <i class="fas fa-trash"></i>
+        Excluir
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="carregando" class="loading-container">
+    <div class="spinner"></div>
+    <p>Carregando dados do cliente...</p>
+  </div>
+
+  <!-- Error Alert -->
+  <div *ngIf="erro" class="alert alert-error">
+    <i class="fas fa-exclamation-triangle"></i>
+    {{ erro }}
+  </div>
+
+  <!-- Cliente Info -->
+  <div *ngIf="cliente && !carregando" class="cliente-info">
+    <!-- Perfil do Cliente -->
+    <div class="cliente-perfil">
+      <div class="avatar-section">
+        <div class="avatar" [style.background-color]="obterCorAvatar(cliente.nome)">
+          {{ obterIniciais(cliente.nome) }}
+        </div>
+        <div class="perfil-info">
+          <h3>{{ cliente.nome }}</h3>
+          <p class="documento">{{ formatarCpfCnpj(cliente.cpfCnpj) }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Informações de Contato -->
+    <div class="info-section">
+      <h4>
+        <i class="fas fa-address-book"></i>
+        Informações de Contato
+      </h4>
+      <div class="info-grid">
+        <div class="info-item" *ngIf="cliente.telefone">
+          <label>Telefone:</label>
+          <span>{{ formatarTelefone(cliente.telefone) }}</span>
+        </div>
+        <div class="info-item" *ngIf="cliente.email">
+          <label>Email:</label>
+          <span>{{ cliente.email }}</span>
+        </div>
+        <div class="info-item full-width" *ngIf="cliente.endereco">
+          <label>Endereço:</label>
+          <span>{{ cliente.endereco }}</span>
+        </div>
+        <div class="info-item" *ngIf="cliente.cidade">
+          <label>Cidade:</label>
+          <span>{{ cliente.cidade }}</span>
+        </div>
+        <div class="info-item" *ngIf="cliente.estado">
+          <label>Estado:</label>
+          <span>{{ cliente.estado }}</span>
+        </div>
+        <div class="info-item" *ngIf="cliente.cep">
+          <label>CEP:</label>
+          <span>{{ formatarCep(cliente.cep) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Observações -->
+    <div class="info-section" *ngIf="cliente.observacoes">
+      <h4>
+        <i class="fas fa-sticky-note"></i>
+        Observações
+      </h4>
+      <div class="observacoes">
+        <p>{{ cliente.observacoes }}</p>
+      </div>
+    </div>
+
+    <!-- Estatísticas dos Casos -->
+    <div class="info-section">
+      <h4>
+        <i class="fas fa-chart-bar"></i>
+        Estatísticas dos Casos
+      </h4>
+      <div class="estatisticas-grid">
+        <div class="estatistica-card">
+          <div class="estatistica-valor">{{ casos.length }}</div>
+          <div class="estatistica-label">Total de Casos</div>
+        </div>
+        <div class="estatistica-card">
+          <div class="estatistica-valor">{{ obterCasosAtivos().length }}</div>
+          <div class="estatistica-label">Casos Ativos</div>
+        </div>
+        <div class="estatistica-card">
+          <div class="estatistica-valor">{{ obterCasosFinalizados().length }}</div>
+          <div class="estatistica-label">Casos Finalizados</div>
+        </div>
+        <div class="estatistica-card">
+          <div class="estatistica-valor">{{ formatarMoeda(calcularTotalHonorarios()) }}</div>
+          <div class="estatistica-label">Total Honorários</div>
+        </div>
+        <div class="estatistica-card">
+          <div class="estatistica-valor">{{ formatarMoeda(calcularTotalPago()) }}</div>
+          <div class="estatistica-label">Honorários Pagos</div>
+        </div>
+        <div class="estatistica-card">
+          <div class="estatistica-valor">{{ formatarMoeda(calcularTotalPendente()) }}</div>
+          <div class="estatistica-label">Honorários Pendentes</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de Casos -->
+    <div class="info-section">
+      <div class="casos-header">
+        <h4>
+          <i class="fas fa-gavel"></i>
+          Casos do Cliente
+        </h4>
+        <button class="btn btn-primary" (click)="novoCaso()">
+          <i class="fas fa-plus"></i>
+          Novo Caso
+        </button>
+      </div>
+
+      <!-- Loading Cases -->
+      <div *ngIf="carregandoCasos" class="loading-container small">
+        <div class="spinner small"></div>
+        <p>Carregando casos...</p>
+      </div>
+
+      <!-- Error Cases -->
+      <div *ngIf="erroCasos" class="alert alert-error">
+        <i class="fas fa-exclamation-triangle"></i>
+        {{ erroCasos }}
+      </div>
+
+      <!-- Cases List -->
+      <div *ngIf="!carregandoCasos && !erroCasos" class="casos-lista">
+        <div *ngIf="casos.length === 0" class="empty-state">
+          <i class="fas fa-folder-open"></i>
+          <h3>Nenhum caso encontrado</h3>
+          <p>Este cliente ainda não possui casos cadastrados.</p>
+          <button class="btn btn-primary" (click)="novoCaso()">
+            <i class="fas fa-plus"></i>
+            Criar Primeiro Caso
+          </button>
+        </div>
+
+        <div *ngIf="casos.length > 0" class="casos-grid">
+          <div *ngFor="let caso of casos" class="caso-card" (click)="verCaso(caso.id)">
+            <div class="caso-header">
+              <div class="caso-numero">
+                <i class="fas fa-hashtag"></i>
+                {{ caso.numeroProcesso || 'Sem número' }}
+              </div>
+              <div class="caso-status" [style.background-color]="obterStatusCor(caso.status)">
+                <i [class]="obterStatusIcone(caso.status)"></i>
+                {{ caso.status }}
+              </div>
+            </div>
+            
+            <div class="caso-content">
+              <h5>{{ caso.descricao }}</h5>
+              <div class="caso-info">
+                <div class="info-row">
+                  <span class="label">Início:</span>
+                  <span>{{ formatarData(caso.dataInicio) }}</span>
+                </div>
+                <div class="info-row" *ngIf="caso.dataFim">
+                  <span class="label">Fim:</span>
+                  <span>{{ formatarData(caso.dataFim) }}</span>
+                </div>
+                <div class="info-row" *ngIf="!caso.dataFim">
+                  <span class="label">Duração:</span>
+                  <span>{{ calcularDiasDesdeInicio(caso.dataInicio) }} dias</span>
+                </div>
+                <div class="info-row" *ngIf="caso.valorHonorarios">
+                  <span class="label">Honorários:</span>
+                  <span class="valor" [class.pago]="caso.honorariosPagos" [class.pendente]="!caso.honorariosPagos">
+                    {{ formatarMoeda(caso.valorHonorarios) }}
+                    <i class="fas fa-check-circle" *ngIf="caso.honorariosPagos" title="Pago"></i>
+                    <i class="fas fa-clock" *ngIf="!caso.honorariosPagos" title="Pendente"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

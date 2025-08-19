@@ -121,8 +121,8 @@
             <td>{{ usuario.nome }}</td>
             <td>{{ usuario.email }}</td>
             <td>
-              <span class="badge" [class]="isAdministrador(usuario) ? 'badge-admin' : 'badge-comum'">
-                {{ isAdministrador(usuario) ? 'Administrador' : 'Comum' }}
+              <span class="badge" [class]="getTipoUsuarioBadgeClass(usuario)">
+                {{ getTipoUsuarioLabel(usuario) }}
               </span>
             </td>
             <td>
@@ -136,7 +136,7 @@
                 </button>
                 
                 <button 
-                  *ngIf="!isAdministrador(usuario)" 
+                  *ngIf="!isAdministrador(usuario) && !isAdvogado(usuario)" 
                   class="btn btn-sm btn-outline-success" 
                   (click)="promoverUsuario(usuario)"
                   title="Promover para Administrador"
@@ -145,7 +145,25 @@
                 </button>
                 
                 <button 
+                  *ngIf="!isAdministrador(usuario) && !isAdvogado(usuario)" 
+                  class="btn btn-sm btn-outline-info" 
+                  (click)="promoverParaAdvogado(usuario)"
+                  title="Promover para Advogado"
+                >
+                  <i class="fas fa-gavel"></i>
+                </button>
+                
+                <button 
                   *ngIf="isAdministrador(usuario)" 
+                  class="btn btn-sm btn-outline-warning" 
+                  (click)="rebaixarUsuario(usuario)"
+                  title="Rebaixar para Comum"
+                >
+                  <i class="fas fa-arrow-down"></i>
+                </button>
+                
+                <button 
+                  *ngIf="isAdvogado(usuario)" 
                   class="btn btn-sm btn-outline-warning" 
                   (click)="rebaixarUsuario(usuario)"
                   title="Rebaixar para Comum"

@@ -1,0 +1,185 @@
+<div class="clientes-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-info">
+        <h1 class="page-title">
+          <i class="fas fa-users"></i>
+          Clientes
+        </h1>
+        <p class="page-subtitle">Gerencie seus clientes do escritório</p>
+      </div>
+      <div class="header-actions">
+        <button 
+          class="btn btn-primary btn-novo"
+          (click)="novoCliente()"
+          [disabled]="carregando">
+          <i class="fas fa-plus"></i>
+          Novo Cliente
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estatísticas -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas fa-users"></i>
+      </div>
+      <div class="stat-info">
+        <h3>{{ totalClientes }}</h3>
+        <p>Total de Clientes</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros e Busca -->
+  <div class="filters-section">
+    <div class="search-container">
+      <div class="search-input-group">
+        <i class="fas fa-search search-icon"></i>
+        <input 
+          type="text" 
+          class="form-control search-input"
+          placeholder="Buscar por nome, CPF/CNPJ ou email..."
+          [(ngModel)]="termoBusca"
+          (keyup.enter)="buscarClientes()"
+          (input)="termoBusca.length === 0 && limparBusca()">
+        <button 
+          class="btn btn-outline-secondary btn-search"
+          (click)="buscarClientes()"
+          [disabled]="carregando">
+          <i class="fas fa-search"></i>
+        </button>
+        <button 
+          class="btn btn-outline-secondary btn-clear"
+          (click)="limparBusca()"
+          [disabled]="carregando || !termoBusca">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensagem de Erro -->
+  <div class="alert alert-danger" *ngIf="erro">
+    <i class="fas fa-exclamation-triangle"></i>
+    {{ erro }}
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="carregando">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+    <p>Carregando clientes...</p>
+  </div>
+
+  <!-- Lista de Clientes -->
+  <div class="clientes-grid" *ngIf="!carregando">
+    <!-- Mensagem quando não há clientes -->
+    <div class="empty-state" *ngIf="clientesFiltrados.length === 0 && !erro">
+      <div class="empty-icon">
+        <i class="fas fa-users"></i>
+      </div>
+      <h3>Nenhum cliente encontrado</h3>
+      <p *ngIf="termoBusca">Tente ajustar os termos de busca ou limpar os filtros.</p>
+      <p *ngIf="!termoBusca">Comece adicionando seu primeiro cliente.</p>
+      <button 
+        class="btn btn-primary"
+        (click)="novoCliente()"
+        *ngIf="!termoBusca">
+        <i class="fas fa-plus"></i>
+        Adicionar Cliente
+      </button>
+    </div>
+
+    <!-- Cards dos Clientes -->
+    <div class="cliente-card" *ngFor="let cliente of clientesFiltrados">
+      <div class="card-header">
+        <div class="cliente-avatar" [style.background-color]="obterCorAvatar(cliente.nome)">
+          {{ obterIniciais(cliente.nome) }}
+        </div>
+        <div class="cliente-info">
+          <h4 class="cliente-nome">{{ cliente.nome }}</h4>
+          <p class="cliente-documento">{{ formatarCpfCnpj(cliente.cpfCnpj) }}</p>
+        </div>
+        <div class="card-actions">
+          <div class="dropdown">
+            <button 
+              class="btn btn-sm btn-outline-secondary dropdown-toggle"
+              type="button"
+              [id]="'dropdown-' + cliente.id"
+              data-bs-toggle="dropdown"
+              aria-expanded="false">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <ul class="dropdown-menu" [attr.aria-labelledby]="'dropdown-' + cliente.id">
+              <li>
+                <a class="dropdown-item" (click)="visualizarCliente(cliente.id)">
+                  <i class="fas fa-eye"></i> Visualizar
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" (click)="editarCliente(cliente.id)">
+                  <i class="fas fa-edit"></i> Editar
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item text-danger" (click)="excluirCliente(cliente)">
+                  <i class="fas fa-trash"></i> Excluir
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="cliente-details">
+          <div class="detail-item" *ngIf="cliente.telefone">
+            <i class="fas fa-phone"></i>
+            <span>{{ formatarTelefone(cliente.telefone) }}</span>
+          </div>
+          <div class="detail-item" *ngIf="cliente.email">
+            <i class="fas fa-envelope"></i>
+            <span>{{ cliente.email }}</span>
+          </div>
+          <div class="detail-item" *ngIf="cliente.cidade">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>{{ cliente.cidade }}<span *ngIf="cliente.estado">, {{ cliente.estado }}</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <div class="footer-stats">
+          <div class="stat">
+            <span class="stat-value">{{ cliente.totalCasos || 0 }}</span>
+            <span class="stat-label">Casos</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">{{ cliente.dataCadastro | date:'dd/MM/yyyy' }}</span>
+            <span class="stat-label">Cadastro</span>
+          </div>
+        </div>
+        <div class="footer-actions">
+          <button 
+            class="btn btn-sm btn-primary"
+            (click)="visualizarCliente(cliente.id)"
+            title="Ver detalhes">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button 
+            class="btn btn-sm btn-outline-primary"
+            (click)="editarCliente(cliente.id)"
+            title="Editar cliente">
+            <i class="fas fa-edit"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

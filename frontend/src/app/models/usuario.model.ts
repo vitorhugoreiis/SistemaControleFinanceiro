@@ -16,4 +16,5 @@ export interface UsuarioCadastro {
     email: string;
     senha: string;
     confirmacaoSenha: string;
+    tipoUsuario?: TipoUsuario;
 }
