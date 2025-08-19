@@ -1,0 +1,175 @@
+<div class="admin-usuarios-container">
+  <div class="header">
+    <h2>Administração de Usuários</h2>
+    <button class="btn btn-primary" (click)="mostrarFormularioNovo()" [disabled]="loading">
+      <i class="fas fa-plus"></i> Novo Usuário
+    </button>
+  </div>
+
+  <!-- Mensagens -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <i class="fas fa-check-circle"></i> {{ successMessage }}
+  </div>
+  
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+  </div>
+
+  <!-- Formulário -->
+  <div *ngIf="mostrarFormulario" class="form-container">
+    <div class="form-header">
+      <h3>{{ editandoUsuario ? 'Editar Usuário' : 'Novo Usuário' }}</h3>
+      <button class="btn btn-secondary" (click)="cancelarEdicao()">
+        <i class="fas fa-times"></i> Cancelar
+      </button>
+    </div>
+
+    <form [formGroup]="usuarioForm" (ngSubmit)="salvarUsuario()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nome">Nome *</label>
+          <input 
+            type="text" 
+            id="nome" 
+            formControlName="nome" 
+            class="form-control"
+            [class.is-invalid]="usuarioForm.get('nome')?.invalid && usuarioForm.get('nome')?.touched"
+          >
+          <div *ngIf="usuarioForm.get('nome')?.invalid && usuarioForm.get('nome')?.touched" class="invalid-feedback">
+            <div *ngIf="usuarioForm.get('nome')?.errors?.['required']">Nome é obrigatório</div>
+            <div *ngIf="usuarioForm.get('nome')?.errors?.['minlength']">Nome deve ter pelo menos 3 caracteres</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input 
+            type="email" 
+            id="email" 
+            formControlName="email" 
+            class="form-control"
+            [class.is-invalid]="usuarioForm.get('email')?.invalid && usuarioForm.get('email')?.touched"
+          >
+          <div *ngIf="usuarioForm.get('email')?.invalid && usuarioForm.get('email')?.touched" class="invalid-feedback">
+            <div *ngIf="usuarioForm.get('email')?.errors?.['required']">Email é obrigatório</div>
+            <div *ngIf="usuarioForm.get('email')?.errors?.['email']">Email inválido</div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!editandoUsuario" class="form-row">
+        <div class="form-group">
+          <label for="senha">Senha *</label>
+          <input 
+            type="password" 
+            id="senha" 
+            formControlName="senha" 
+            class="form-control"
+            [class.is-invalid]="usuarioForm.get('senha')?.invalid && usuarioForm.get('senha')?.touched"
+          >
+          <div *ngIf="usuarioForm.get('senha')?.invalid && usuarioForm.get('senha')?.touched" class="invalid-feedback">
+            <div *ngIf="usuarioForm.get('senha')?.errors?.['required']">Senha é obrigatória</div>
+            <div *ngIf="usuarioForm.get('senha')?.errors?.['minlength']">Senha deve ter pelo menos 6 caracteres</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmacaoSenha">Confirmar Senha *</label>
+          <input 
+            type="password" 
+            id="confirmacaoSenha" 
+            formControlName="confirmacaoSenha" 
+            class="form-control"
+            [class.is-invalid]="(usuarioForm.get('confirmacaoSenha')?.invalid && usuarioForm.get('confirmacaoSenha')?.touched) || usuarioForm.errors?.['notSame']"
+          >
+          <div *ngIf="(usuarioForm.get('confirmacaoSenha')?.invalid && usuarioForm.get('confirmacaoSenha')?.touched) || usuarioForm.errors?.['notSame']" class="invalid-feedback">
+            <div *ngIf="usuarioForm.get('confirmacaoSenha')?.errors?.['required']">Confirmação de senha é obrigatória</div>
+            <div *ngIf="usuarioForm.errors?.['notSame']">Senhas não coincidem</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success" [disabled]="usuarioForm.invalid || loading">
+          <i class="fas fa-save"></i> {{ editandoUsuario ? 'Atualizar' : 'Criar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Carregando...
+  </div>
+
+  <!-- Lista de Usuários -->
+  <div *ngIf="!loading" class="usuarios-list">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Tipo</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let usuario of usuarios">
+            <td>{{ usuario.id }}</td>
+            <td>{{ usuario.nome }}</td>
+            <td>{{ usuario.email }}</td>
+            <td>
+              <span class="badge" [class]="isAdministrador(usuario) ? 'badge-admin' : 'badge-comum'">
+                {{ isAdministrador(usuario) ? 'Administrador' : 'Comum' }}
+              </span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <button 
+                  class="btn btn-sm btn-outline-primary" 
+                  (click)="editarUsuario(usuario)"
+                  title="Editar"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                
+                <button 
+                  *ngIf="!isAdministrador(usuario)" 
+                  class="btn btn-sm btn-outline-success" 
+                  (click)="promoverUsuario(usuario)"
+                  title="Promover para Administrador"
+                >
+                  <i class="fas fa-arrow-up"></i>
+                </button>
+                
+                <button 
+                  *ngIf="isAdministrador(usuario)" 
+                  class="btn btn-sm btn-outline-warning" 
+                  (click)="rebaixarUsuario(usuario)"
+                  title="Rebaixar para Comum"
+                >
+                  <i class="fas fa-arrow-down"></i>
+                </button>
+                
+                <button 
+                  class="btn btn-sm btn-outline-danger" 
+                  (click)="excluirUsuario(usuario)"
+                  title="Excluir"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div *ngIf="usuarios.length === 0" class="no-data">
+        <i class="fas fa-users"></i>
+        <p>Nenhum usuário encontrado.</p>
+      </div>
+    </div>
+  </div>
+</div>

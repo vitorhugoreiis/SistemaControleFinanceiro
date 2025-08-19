@@ -1,0 +1,46 @@
+<header class="header" (document:click)="onDocumentClick($event)">
+  <div class="header-container">
+    <!-- Logo e título -->
+    <div class="header-brand">
+      <div class="logo">
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <h1 class="brand-title">{{ companyName }}</h1>
+    </div>
+
+    <!-- Menu do usuário -->
+    <div class="user-menu-container" *ngIf="usuario">
+      <div class="user-info" (click)="toggleUserMenu()">
+        <div class="user-avatar">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="user-details">
+          <span class="user-name">{{ usuario.nome }}</span>
+          <span class="user-role" *ngIf="isAdmin">Administrador</span>
+          <span class="user-role" *ngIf="!isAdmin">Usuário</span>
+        </div>
+        <i class="fas fa-chevron-down dropdown-icon" [class.rotated]="showUserMenu"></i>
+      </div>
+
+      <!-- Dropdown menu -->
+      <div class="user-dropdown" [class.show]="showUserMenu">
+        <div class="dropdown-item" (click)="navigateToProfile()">
+          <i class="fas fa-user-circle"></i>
+          <span>Meu Perfil</span>
+        </div>
+        
+        <div class="dropdown-item" *ngIf="isAdmin" (click)="navigateToAdminUsers()">
+          <i class="fas fa-users-cog"></i>
+          <span>Gerenciar Usuários</span>
+        </div>
+        
+        <div class="dropdown-divider"></div>
+        
+        <div class="dropdown-item logout" (click)="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Sair</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

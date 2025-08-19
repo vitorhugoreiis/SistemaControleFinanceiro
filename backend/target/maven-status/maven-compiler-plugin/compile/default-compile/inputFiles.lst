@@ -1,6 +1,7 @@
 C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\config\CorsConfig.java
 C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\repository\RegistroImportacaoRepository.java
 C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\service\RegistroImportacaoService.java
+C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\enums\TipoUsuario.java
 C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\dto\LoginRequestDTO.java
 C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\dto\ResumoFinanceiroDTO.java
 C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\repository\PerfilRepository.java
@@ -47,6 +48,7 @@ C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\co
 C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\controller\CategoriaController.java
 C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\dto\InstituicaoDTO.java
 C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\SistemaControleFinanceiroApplication.java
+C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\controller\AdminController.java
 C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\entity\Perfil.java
 C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\dto\SubcategoriaDTO.java
 C:\Users\vitor\SistemaControleFinanceiro\backend\src\main\java\com\financeiro\controller\InstituicaoController.java

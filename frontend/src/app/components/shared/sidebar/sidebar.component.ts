@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { Usuario } from '../../../models/usuario.model';
@@ -17,7 +17,7 @@ interface MenuItem {
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
   usuario: Usuario | null = null;
   
   // Expor o router para uso no template
@@ -46,15 +46,27 @@ export class SidebarComponent {
       ]
     },
     { label: 'Instituições', icon: 'account_balance', route: '/instituicoes' },
-    { label: 'Importações', icon: 'upload_file', route: '/importacoes' },
-    { label: 'Perfil', icon: 'person', route: '/perfil' }
+    { label: 'Importações', icon: 'upload_file', route: '/importacoes' }
   ];
 
-  constructor(private authService: AuthService, router: Router) {
+
+
+  constructor(
+    private authService: AuthService,
+    router: Router
+  ) {
     this.router = router;
     this.authService.usuario$.subscribe(usuario => {
       this.usuario = usuario;
     });
+  }
+
+  ngOnInit(): void {
+    // Componente inicializado
+  }
+
+  get allMenuItems(): MenuItem[] {
+    return this.menuItems;
   }
 
   toggleSubmenu(item: MenuItem): void {

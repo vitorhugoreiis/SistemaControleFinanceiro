@@ -3,6 +3,7 @@ com\financeiro\dto\LoginResponseDTO$LoginResponseDTOBuilder.class
 com\financeiro\config\CorsConfig.class
 com\financeiro\dto\LoginRequestDTO.class
 com\financeiro\exception\GlobalExceptionHandler$Problema$Campo.class
+com\financeiro\enums\TipoUsuario.class
 com\financeiro\security\JwtAuthenticationFilter.class
 com\financeiro\entity\Instituicao.class
 com\financeiro\repository\RegistroImportacaoRepository.class
@@ -35,6 +36,7 @@ com\financeiro\dto\UsuarioCadastroDTO.class
 com\financeiro\service\TransacaoService.class
 com\financeiro\controller\ResumoFinanceiroController.class
 com\financeiro\entity\Transacao.class
+com\financeiro\controller\AdminController.class
 com\financeiro\repository\TransacaoRepository.class
 com\financeiro\controller\SubcategoriaController.class
 com\financeiro\service\RegistroImportacaoService.class

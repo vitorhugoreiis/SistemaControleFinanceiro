@@ -1,0 +1,217 @@
+.app-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: 60px;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  padding: 0 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-left {
+  .app-title {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.header-right {
+  .user-menu {
+    position: relative;
+    
+    .user-button {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      padding: 0.5rem 1rem;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+      
+      .user-avatar {
+        width: 32px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        i {
+          font-size: 0.9rem;
+        }
+      }
+      
+      .user-name {
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+      
+      .fa-chevron-down {
+        font-size: 0.8rem;
+        transition: transform 0.3s ease;
+        
+        &.rotated {
+          transform: rotate(180deg);
+        }
+      }
+    }
+    
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      right: 0;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      min-width: 250px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      
+      &.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+      
+      .dropdown-header {
+        padding: 1rem;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 12px 12px 0 0;
+        
+        .user-info {
+          strong {
+            display: block;
+            color: #2c3e50;
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+          }
+          
+          small {
+            color: #6c757d;
+            font-size: 0.8rem;
+          }
+        }
+      }
+      
+      .dropdown-divider {
+        height: 1px;
+        background: #e9ecef;
+        margin: 0;
+      }
+      
+      .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: none;
+        border: none;
+        color: #495057;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: left;
+        
+        &:hover {
+          background: #f8f9fa;
+          color: #2c3e50;
+        }
+        
+        i {
+          width: 16px;
+          text-align: center;
+          color: #6c757d;
+        }
+        
+        &.admin-item {
+          i {
+            color: #28a745;
+          }
+          
+          &:hover {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+          }
+        }
+        
+        &.logout-item {
+          i {
+            color: #dc3545;
+          }
+          
+          &:hover {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+          }
+        }
+        
+        &:last-child {
+          border-radius: 0 0 12px 12px;
+        }
+      }
+    }
+  }
+}
+
+// Responsividade
+@media (max-width: 768px) {
+  .header-content {
+    padding: 0 1rem;
+  }
+  
+  .header-left {
+    .app-title {
+      font-size: 1.2rem;
+    }
+  }
+  
+  .user-menu {
+    .user-button {
+      padding: 0.4rem 0.8rem;
+      
+      .user-name {
+        display: none;
+      }
+    }
+    
+    .dropdown-menu {
+      min-width: 200px;
+      right: -1rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .header-left {
+    .app-title {
+      font-size: 1rem;
+    }
+  }
+}

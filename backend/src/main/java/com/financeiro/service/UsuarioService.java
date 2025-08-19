@@ -19,6 +19,7 @@ import com.financeiro.dto.LoginResponseDTO;
 import com.financeiro.dto.UsuarioCadastroDTO;
 import com.financeiro.dto.UsuarioDTO;
 import com.financeiro.entity.Usuario;
+import com.financeiro.enums.TipoUsuario;
 import com.financeiro.repository.UsuarioRepository;
 import com.financeiro.security.JwtService;
 import com.financeiro.service.PerfilService;
@@ -172,11 +173,41 @@ public class UsuarioService {
         return converterParaDTO(usuario);
     }
     
+    // Métodos para administração de usuários
+    public boolean isAdministrador(Long usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        return usuario.getTipoUsuario() == TipoUsuario.ADMINISTRADOR;
+    }
+    
+    public boolean isAdministrador(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        return usuario.getTipoUsuario() == TipoUsuario.ADMINISTRADOR;
+    }
+    
+    public UsuarioDTO promoverParaAdministrador(Long usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        usuario.setTipoUsuario(TipoUsuario.ADMINISTRADOR);
+        usuario = usuarioRepository.save(usuario);
+        return converterParaDTO(usuario);
+    }
+    
+    public UsuarioDTO rebaixarParaComum(Long usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        usuario.setTipoUsuario(TipoUsuario.COMUM);
+        usuario = usuarioRepository.save(usuario);
+        return converterParaDTO(usuario);
+    }
+    
     private UsuarioDTO converterParaDTO(Usuario usuario) {
         UsuarioDTO dto = new UsuarioDTO();
         dto.setId(usuario.getId());
         dto.setNome(usuario.getNome());
         dto.setEmail(usuario.getEmail());
+        dto.setTipoUsuario(usuario.getTipoUsuario());
         return dto;
     }
 }

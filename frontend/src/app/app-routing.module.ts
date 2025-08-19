@@ -10,7 +10,9 @@ import { InstituicaoComponent } from './components/instituicao/instituicao.compo
 import { ImportacaoComponent } from './components/importacao/importacao.component';
 import { PerfilComponent } from './components/perfil/perfil.component';
 import { VisualizarTransacoesComponent } from './components/visualizar-transacoes/visualizar-transacoes.component';
+import { AdminUsuariosComponent } from './components/admin-usuarios/admin-usuarios.component';
 import { AuthGuard } from './guards/auth.guard';
+import { AdminGuard } from './guards/admin.guard';
 
 const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -24,6 +26,7 @@ const routes: Routes = [
   { path: 'instituicoes', component: InstituicaoComponent, canActivate: [AuthGuard] },
   { path: 'importacoes', component: ImportacaoComponent, canActivate: [AuthGuard] },
   { path: 'perfil', component: PerfilComponent, canActivate: [AuthGuard] },
+  { path: 'admin/usuarios', component: AdminUsuariosComponent, canActivate: [AuthGuard, AdminGuard] },
   { path: '**', redirectTo: '/dashboard' }
 ];
 

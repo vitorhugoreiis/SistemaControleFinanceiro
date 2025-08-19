@@ -1,7 +1,13 @@
+export enum TipoUsuario {
+    COMUM = 'COMUM',
+    ADMINISTRADOR = 'ADMINISTRADOR'
+}
+
 export interface Usuario {
     id?: number;
     nome: string;
     email: string;
+    tipoUsuario?: TipoUsuario;
 }
 
 export interface UsuarioCadastro {

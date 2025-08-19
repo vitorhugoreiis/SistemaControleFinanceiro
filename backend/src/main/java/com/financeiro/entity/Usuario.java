@@ -2,8 +2,13 @@ package com.financeiro.entity;
 
 import java.util.List;
 
+import com.financeiro.enums.TipoUsuario;
+
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -35,6 +40,10 @@ public class Usuario {
     
     @NotBlank(message = "A senha é obrigatória")
     private String senhaHash;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_usuario", nullable = false)
+    private TipoUsuario tipoUsuario = TipoUsuario.COMUM;
     
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private List<Perfil> perfis;

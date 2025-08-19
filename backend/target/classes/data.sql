@@ -1,7 +1,7 @@
 -- Inserção de usuários
-INSERT INTO usuarios (nome, email, senha_hash) VALUES
-('Administrador', 'admin@financeiro.com', '$2a$10$Y50UaMFOxteibQEYLrwuHeehHYfcoafCopUazP12.rqB41bsolF5.'), -- senha: admin123
-('Usuário Teste', 'usuario@teste.com', '$2a$10$Y50UaMFOxteibQEYLrwuHeehHYfcoafCopUazP12.rqB41bsolF5.'); -- senha: admin123
+INSERT INTO usuarios (nome, email, senha_hash, tipo_usuario) VALUES
+('Administrador', 'admin@financeiro.com', '$2a$10$Y50UaMFOxteibQEYLrwuHeehHYfcoafCopUazP12.rqB41bsolF5.', 'ADMINISTRADOR'), -- senha: admin123
+('Usuário Teste', 'usuario@teste.com', '$2a$10$Y50UaMFOxteibQEYLrwuHeehHYfcoafCopUazP12.rqB41bsolF5.', 'COMUM'); -- senha: admin123
 
 -- Inserção de perfis
 INSERT INTO perfis (nome, tipo_perfil, usuario_id) VALUES

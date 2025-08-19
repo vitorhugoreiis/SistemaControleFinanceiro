@@ -11,6 +11,7 @@ import { LoginComponent } from './components/login/login.component';
 import { CadastroComponent } from './components/cadastro/cadastro.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { SidebarComponent } from './components/shared/sidebar/sidebar.component';
+import { HeaderComponent } from './components/header/header.component';
 import { CategoriaComponent } from './components/categoria/categoria.component';
 import { SubcategoriaComponent } from './components/subcategoria/subcategoria.component';
 import { TransacaoComponent } from './components/transacao/transacao.component';
@@ -18,6 +19,7 @@ import { InstituicaoComponent } from './components/instituicao/instituicao.compo
 import { ImportacaoComponent } from './components/importacao/importacao.component';
 import { PerfilComponent } from './components/perfil/perfil.component';
 import { VisualizarTransacoesComponent } from './components/visualizar-transacoes/visualizar-transacoes.component';
+import { AdminUsuariosComponent } from './components/admin-usuarios/admin-usuarios.component';
 
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 
@@ -31,6 +33,7 @@ import { FilterPipe } from './pipes/filter.pipe';
     CadastroComponent,
     DashboardComponent,
     SidebarComponent,
+    HeaderComponent,
     CategoriaComponent,
     SubcategoriaComponent,
     TransacaoComponent,
@@ -38,6 +41,7 @@ import { FilterPipe } from './pipes/filter.pipe';
     ImportacaoComponent,
     PerfilComponent,
     VisualizarTransacoesComponent,
+    AdminUsuariosComponent,
     FilterPipe
   ],
   imports: [
