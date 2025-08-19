@@ -5,6 +5,13 @@ on:
     branches: [ main, develop ]
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+  issues: write
+  pull-requests: write
+
 jobs:
   # Validação do Backend
   validate-backend:
@@ -32,7 +39,7 @@ jobs:
     
     - name: Cache Maven dependencies
       uses: actions/cache@v4
-        with:
+      with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
@@ -120,6 +127,7 @@ jobs:
       if: always()
       with:
         sarif_file: 'trivy-results.sarif'
+      continue-on-error: true
 
   # Comentário automático no PR com resultados
   pr-comment:
