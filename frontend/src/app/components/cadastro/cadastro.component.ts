@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { TipoUsuario } from '../../models/usuario.model';
 
 @Component({
   selector: 'app-cadastro',
@@ -12,6 +13,10 @@ export class CadastroComponent {
   cadastroForm: FormGroup;
   errorMessage = '';
   loading = false;
+  tiposUsuario = [
+    { value: TipoUsuario.COMUM, label: 'Usuário Comum' },
+    { value: TipoUsuario.ADVOGADO, label: 'Advogado' }
+  ];
 
   constructor(
     private formBuilder: FormBuilder,
@@ -22,7 +27,8 @@ export class CadastroComponent {
       nome: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
       senha: ['', [Validators.required, Validators.minLength(6)]],
-      confirmacaoSenha: ['', [Validators.required]]
+      confirmacaoSenha: ['', [Validators.required]],
+      tipoUsuario: [TipoUsuario.COMUM, [Validators.required]]
     }, { validator: this.checkPasswords });
   }
 

@@ -1,0 +1,237 @@
+<div class="caso-form-container">
+  <div class="form-header">
+    <h2>
+      <i class="fas fa-gavel" *ngIf="!isEdicao"></i>
+      <i class="fas fa-edit" *ngIf="isEdicao"></i>
+      {{ isEdicao ? 'Editar Caso' : 'Novo Caso' }}
+    </h2>
+    <button type="button" class="btn btn-secondary" (click)="cancelar()" [disabled]="salvando">
+      <i class="fas fa-times"></i>
+      Cancelar
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="carregando" class="loading-container">
+    <div class="spinner"></div>
+    <p>Carregando dados do caso...</p>
+  </div>
+
+  <!-- Error Alert -->
+  <div *ngIf="erro" class="alert alert-error">
+    <i class="fas fa-exclamation-triangle"></i>
+    {{ erro }}
+  </div>
+
+  <!-- Success Alert -->
+  <div *ngIf="sucesso" class="alert alert-success">
+    <i class="fas fa-check-circle"></i>
+    {{ sucesso }}
+  </div>
+
+  <!-- Form -->
+  <form [formGroup]="casoForm" (ngSubmit)="onSubmit()" *ngIf="!carregando" class="caso-form">
+    <div class="form-grid">
+      <!-- Cliente -->
+      <div class="form-group full-width">
+        <label for="clienteId" class="form-label required">Cliente</label>
+        <div class="cliente-select-container">
+          <select
+            id="clienteId"
+            formControlName="clienteId"
+            class="form-select"
+            [class.invalid]="isCampoInvalido('clienteId')"
+            [disabled]="carregandoClientes"
+          >
+            <option value="">Selecione um cliente</option>
+            <option *ngFor="let cliente of clientes" [value]="cliente.id">
+              {{ cliente.nome }} - {{ cliente.cpfCnpj }}
+            </option>
+          </select>
+          <button
+            type="button"
+            class="btn btn-sm btn-secondary"
+            (click)="novoCliente()"
+            title="Cadastrar novo cliente"
+          >
+            <i class="fas fa-plus"></i>
+            Novo Cliente
+          </button>
+        </div>
+        <div *ngIf="isCampoInvalido('clienteId')" class="error-message">
+          {{ obterMensagemErroCampo('clienteId') }}
+        </div>
+        <div *ngIf="carregandoClientes" class="loading-message">
+          <i class="fas fa-spinner fa-spin"></i>
+          Carregando clientes...
+        </div>
+      </div>
+
+      <!-- Descrição -->
+      <div class="form-group full-width">
+        <label for="descricao" class="form-label required">Descrição do Caso</label>
+        <textarea
+          id="descricao"
+          formControlName="descricao"
+          class="form-textarea"
+          [class.invalid]="isCampoInvalido('descricao')"
+          placeholder="Descreva o caso jurídico de forma clara e objetiva"
+          rows="4"
+        ></textarea>
+        <div *ngIf="isCampoInvalido('descricao')" class="error-message">
+          {{ obterMensagemErroCampo('descricao') }}
+        </div>
+      </div>
+
+      <!-- Número do Processo -->
+      <div class="form-group">
+        <label for="numeroProcesso" class="form-label">Número do Processo</label>
+        <input
+          type="text"
+          id="numeroProcesso"
+          formControlName="numeroProcesso"
+          class="form-input"
+          [class.invalid]="isCampoInvalido('numeroProcesso')"
+          placeholder="0000000-00.0000.0.00.0000"
+          (input)="onNumeroProcessoChange($event)"
+        >
+        <div *ngIf="isCampoInvalido('numeroProcesso')" class="error-message">
+          {{ obterMensagemErroCampo('numeroProcesso') }}
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div class="form-group">
+        <label for="status" class="form-label required">Status</label>
+        <select
+          id="status"
+          formControlName="status"
+          class="form-select"
+          [class.invalid]="isCampoInvalido('status')"
+          (change)="onStatusChange()"
+        >
+          <option *ngFor="let status of statusOptions" [value]="status.value">
+            {{ status.label }}
+          </option>
+        </select>
+        <div *ngIf="isCampoInvalido('status')" class="error-message">
+          {{ obterMensagemErroCampo('status') }}
+        </div>
+      </div>
+
+      <!-- Data de Início -->
+      <div class="form-group">
+        <label for="dataInicio" class="form-label required">Data de Início</label>
+        <input
+          type="date"
+          id="dataInicio"
+          formControlName="dataInicio"
+          class="form-input"
+          [class.invalid]="isCampoInvalido('dataInicio')"
+        >
+        <div *ngIf="isCampoInvalido('dataInicio')" class="error-message">
+          {{ obterMensagemErroCampo('dataInicio') }}
+        </div>
+      </div>
+
+      <!-- Data de Fim -->
+      <div class="form-group">
+        <label for="dataFim" class="form-label">Data de Fim</label>
+        <input
+          type="date"
+          id="dataFim"
+          formControlName="dataFim"
+          class="form-input"
+          [class.invalid]="isCampoInvalido('dataFim')"
+        >
+        <div *ngIf="isCampoInvalido('dataFim')" class="error-message">
+          {{ obterMensagemErroCampo('dataFim') }}
+        </div>
+        <div *ngIf="calcularDuracao()" class="info-message">
+          <i class="fas fa-info-circle"></i>
+          Duração: {{ calcularDuracao() }}
+        </div>
+      </div>
+
+      <!-- Valor dos Honorários -->
+      <div class="form-group">
+        <label for="valorHonorarios" class="form-label">Valor dos Honorários</label>
+        <div class="input-group">
+          <span class="input-prefix">R$</span>
+          <input
+            type="text"
+            id="valorHonorarios"
+            formControlName="valorHonorarios"
+            class="form-input with-prefix"
+            [class.invalid]="isCampoInvalido('valorHonorarios')"
+            placeholder="0,00"
+            (input)="onValorHonorariosChange($event)"
+          >
+        </div>
+        <div *ngIf="isCampoInvalido('valorHonorarios')" class="error-message">
+          {{ obterMensagemErroCampo('valorHonorarios') }}
+        </div>
+      </div>
+
+      <!-- Honorários Pagos -->
+      <div class="form-group">
+        <div class="checkbox-container">
+          <input
+            type="checkbox"
+            id="honorariosPagos"
+            formControlName="honorariosPagos"
+            class="form-checkbox"
+          >
+          <label for="honorariosPagos" class="checkbox-label">
+            <i class="fas fa-check-circle" *ngIf="casoForm.get('honorariosPagos')?.value"></i>
+            <i class="fas fa-circle" *ngIf="!casoForm.get('honorariosPagos')?.value"></i>
+            Honorários Pagos
+          </label>
+        </div>
+        <div *ngIf="casoForm.get('valorHonorarios')?.value && casoForm.get('honorariosPagos')?.value" class="info-message">
+          <i class="fas fa-money-check-alt"></i>
+          Valor pago: {{ formatarMoeda(casoForm.get('valorHonorarios')?.value) }}
+        </div>
+      </div>
+
+      <!-- Observações -->
+      <div class="form-group full-width">
+        <label for="observacoes" class="form-label">Observações</label>
+        <textarea
+          id="observacoes"
+          formControlName="observacoes"
+          class="form-textarea"
+          [class.invalid]="isCampoInvalido('observacoes')"
+          placeholder="Informações adicionais sobre o caso"
+          rows="4"
+        ></textarea>
+        <div *ngIf="isCampoInvalido('observacoes')" class="error-message">
+          {{ obterMensagemErroCampo('observacoes') }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="cancelar()"
+        [disabled]="salvando"
+      >
+        <i class="fas fa-times"></i>
+        Cancelar
+      </button>
+      
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="casoForm.invalid || salvando"
+      >
+        <i class="fas fa-spinner fa-spin" *ngIf="salvando"></i>
+        <i class="fas fa-save" *ngIf="!salvando"></i>
+        {{ salvando ? 'Salvando...' : (isEdicao ? 'Atualizar' : 'Criar') }} Caso
+      </button>
+    </div>
+  </form>
+</div>

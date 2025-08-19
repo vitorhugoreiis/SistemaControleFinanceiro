@@ -40,6 +40,10 @@ export class AdminService {
     return this.http.put<Usuario>(`${this.apiUrl}/usuarios/${id}/promover`, {});
   }
 
+  promoverParaAdvogado(id: number): Observable<Usuario> {
+    return this.http.put<Usuario>(`${this.apiUrl}/usuarios/${id}/promover-advogado`, {});
+  }
+
   rebaixarParaComum(id: number): Observable<Usuario> {
     return this.http.put<Usuario>(`${this.apiUrl}/usuarios/${id}/rebaixar`, {});
   }

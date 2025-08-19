@@ -2,7 +2,8 @@ package com.financeiro.enums;
 
 public enum TipoUsuario {
     COMUM("Comum"),
-    ADMINISTRADOR("Administrador");
+    ADMINISTRADOR("Administrador"),
+    ADVOGADO("Advogado");
     
     private final String descricao;
     

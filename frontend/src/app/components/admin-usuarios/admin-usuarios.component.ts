@@ -187,8 +187,54 @@ export class AdminUsuariosComponent implements OnInit {
     }
   }
 
+  promoverParaAdvogado(usuario: Usuario): void {
+    if (confirm(`Tem certeza que deseja promover ${usuario.nome} para advogado?`)) {
+      this.loading = true;
+      this.limparMensagens();
+
+      this.adminService.promoverParaAdvogado(usuario.id!).subscribe({
+        next: () => {
+          this.successMessage = 'Usuário promovido para advogado!';
+          this.carregarUsuarios();
+        },
+        error: (error) => {
+          this.errorMessage = error.error?.message || 'Erro ao promover usuário para advogado.';
+          this.loading = false;
+        }
+      });
+    }
+  }
+
   isAdministrador(usuario: Usuario): boolean {
     return usuario.tipoUsuario === TipoUsuario.ADMINISTRADOR;
+  }
+
+  isAdvogado(usuario: Usuario): boolean {
+    return usuario.tipoUsuario === TipoUsuario.ADVOGADO;
+  }
+
+  getTipoUsuarioLabel(usuario: Usuario): string {
+    switch (usuario.tipoUsuario) {
+      case TipoUsuario.ADMINISTRADOR:
+        return 'Administrador';
+      case TipoUsuario.ADVOGADO:
+        return 'Advogado';
+      case TipoUsuario.COMUM:
+      default:
+        return 'Comum';
+    }
+  }
+
+  getTipoUsuarioBadgeClass(usuario: Usuario): string {
+    switch (usuario.tipoUsuario) {
+      case TipoUsuario.ADMINISTRADOR:
+        return 'badge-admin';
+      case TipoUsuario.ADVOGADO:
+        return 'badge-advogado';
+      case TipoUsuario.COMUM:
+      default:
+        return 'badge-comum';
+    }
   }
 
   private limparMensagens(): void {

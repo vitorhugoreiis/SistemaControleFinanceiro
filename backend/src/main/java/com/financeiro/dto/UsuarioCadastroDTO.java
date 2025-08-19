@@ -1,5 +1,6 @@
 package com.financeiro.dto;
 
+import com.financeiro.enums.TipoUsuario;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -25,4 +26,6 @@ public class UsuarioCadastroDTO {
     
     @NotBlank(message = "A confirmação de senha é obrigatória")
     private String confirmacaoSenha;
+    
+    private TipoUsuario tipoUsuario = TipoUsuario.COMUM;
 }

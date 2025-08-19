@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
-import { Usuario } from '../../../models/usuario.model';
+import { Usuario, TipoUsuario } from '../../../models/usuario.model';
 
 interface MenuItem {
   label: string;
@@ -34,8 +34,8 @@ export class SidebarComponent implements OnInit {
       hasSubmenu: true,
       showSubmenu: false,
       submenuItems: [
-        { label: 'Nova Transação', icon: 'add', route: '/transacao/nova' },
-        { label: 'Visualizar', icon: 'visibility', route: '/transacoes' }
+        { label: 'Nova Transação', icon: 'add', route: '/transacoes' },
+        { label: 'Visualizar', icon: 'visibility', route: '/transacoes/visualizar' }
       ]
     },
     {
@@ -60,6 +60,20 @@ export class SidebarComponent implements OnInit {
     }
   ];
 
+  menuItemsJuridico: MenuItem[] = [
+    {
+      label: 'Jurídico',
+      icon: 'gavel',
+      hasSubmenu: true,
+      showSubmenu: false,
+      submenuItems: [
+        { label: 'Clientes', icon: 'people', route: '/juridico/clientes' },
+        { label: 'Casos', icon: 'folder', route: '/juridico/casos' },
+        { label: 'Honorários', icon: 'attach_money', route: '/juridico/honorarios' }
+      ]
+    }
+  ];
+
 
 
 
@@ -79,7 +93,14 @@ export class SidebarComponent implements OnInit {
   }
 
   get allMenuItems(): MenuItem[] {
-    return this.menuItems;
+    const baseItems = [...this.menuItems];
+    
+    // Adicionar menu jurídico para advogados e administradores
+    if (this.usuario?.tipoUsuario === TipoUsuario.ADVOGADO || this.usuario?.tipoUsuario === TipoUsuario.ADMINISTRADOR) {
+      baseItems.push(...this.menuItemsJuridico);
+    }
+    
+    return baseItems;
   }
 
   toggleSubmenu(item: MenuItem): void {

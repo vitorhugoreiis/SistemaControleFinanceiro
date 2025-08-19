@@ -64,6 +64,22 @@
         </div>
       </div>
       
+      <div class="form-group">
+        <label for="tipoUsuario">Tipo de Usuário</label>
+        <select 
+          id="tipoUsuario" 
+          formControlName="tipoUsuario"
+          [ngClass]="{'is-invalid': cadastroForm.get('tipoUsuario')?.invalid && cadastroForm.get('tipoUsuario')?.touched}"
+        >
+          <option *ngFor="let tipo of tiposUsuario" [value]="tipo.value">
+            {{ tipo.label }}
+          </option>
+        </select>
+        <div *ngIf="cadastroForm.get('tipoUsuario')?.invalid && cadastroForm.get('tipoUsuario')?.touched" class="error-message">
+          <span *ngIf="cadastroForm.get('tipoUsuario')?.errors?.['required']">Tipo de usuário é obrigatório</span>
+        </div>
+      </div>
+      
       <div *ngIf="errorMessage" class="alert alert-danger">
         {{ errorMessage }}
       </div>
