@@ -177,3 +177,44 @@ void shouldValidateJWTTokens() {
 ---
 
 **⚠️ IMPORTANTE**: Esta configuração fornece uma base sólida de segurança, mas a segurança é um processo contínuo. Sempre mantenha-se atualizado com as melhores práticas e realize auditorias regulares.
+
+Baseado na nossa conversa anterior e na lista de tarefas, aqui está um resumo da implementação do módulo jurídico que foi planejada:
+
+## 📋 Módulo Jurídico - Resumo da Implementação
+### 🎯 Objetivo
+Expandir o sistema de controle financeiro para incluir funcionalidades específicas para advogados, permitindo gestão de clientes, casos jurídicos e honorários advocatícios.
+
+### 🏗️ Estrutura Planejada 1. Expansão do Enum TipoUsuario ⏳
+- Adicionar ADVOGADO ao enum existente (COMUM, ADMINISTRADOR)
+- Permitir que usuários tenham perfil específico para advocacia 2. Entidade Cliente ⏳
+- Gestão de clientes do advogado
+- Campos: nome, CPF/CNPJ, telefone, email, endereço
+- Relacionamento com o usuário advogado 3. Entidade Caso ⏳
+- Gestão de processos jurídicos
+- Campos: número do processo, tribunal, vara, cliente, status, data início
+- Relacionamento com Cliente e Usuário (advogado) 4. Sistema de Honorários ⏳
+- Honorários específicos para advocacia
+- Tipos: contratuais, sucumbenciais, ad exitum
+- Vinculação com casos jurídicos
+- Controle de recebimentos e pendências
+### 📊 Status Atual
+✅ Concluído:
+
+- Sistema base de administração de usuários
+- Enum TipoUsuario (COMUM, ADMINISTRADOR)
+- Infraestrutura de guards e permissões
+⏳ Pendente:
+
+- Expansão para incluir tipo ADVOGADO
+- Criação das entidades Cliente e Caso
+- Implementação do sistema de honorários
+### 🔄 Próximos Passos
+1. 1.
+   Expandir TipoUsuario para incluir ADVOGADO
+2. 2.
+   Criar entidade Cliente com campos específicos
+3. 3.
+   Criar entidade Caso para processos jurídicos
+4. 4.
+   Implementar sistema de honorários advocatícios
+Gostaria que eu continue com a implementação do módulo jurídico? Posso começar expandindo o enum TipoUsuario para incluir o tipo ADVOGADO
