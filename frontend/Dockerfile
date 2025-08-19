@@ -7,14 +7,14 @@ WORKDIR /app
 # Copiar arquivos de configuração do npm
 COPY package*.json ./
 
-# Instalar dependências
-RUN npm ci --only=production
+# Instalar todas as dependências (incluindo devDependencies para o build)
+RUN npm ci
 
 # Copiar código fonte
 COPY . .
 
-# Build da aplicação Angular
-RUN npm run build --prod
+# Build da aplicação Angular para produção
+RUN npm run build -- --configuration=production
 
 # Estágio final - servidor web Nginx
 FROM nginx:1.25-alpine
@@ -22,38 +22,33 @@ FROM nginx:1.25-alpine
 # Instalar dependências para health check
 RUN apk add --no-cache curl
 
-# Remover configuração padrão do Nginx
-RUN rm /etc/nginx/conf.d/default.conf
-
-# Copiar configuração customizada do Nginx
-COPY nginx.conf /etc/nginx/conf.d/
+# Criar usuário não-root para segurança
+RUN addgroup -g 1001 -S appuser && \
+    adduser -S -D -H -u 1001 -h /var/cache/nginx -s /sbin/nologin -G appuser -g appuser appuser
 
 # Copiar arquivos buildados do Angular
-COPY --from=build /app/dist/ /usr/share/nginx/html/
+COPY --from=build /app/dist/controle-financeiro/ /usr/share/nginx/html/
 
-# Criar usuário não-root para segurança
-RUN addgroup -g 1001 -S nginx-user && \
-    adduser -S -D -H -u 1001 -h /var/cache/nginx -s /sbin/nologin -G nginx-user -g nginx-user nginx-user
+# Copiar configuração customizada do Nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Ajustar permissões
-RUN chown -R nginx-user:nginx-user /usr/share/nginx/html && \
-    chown -R nginx-user:nginx-user /var/cache/nginx && \
-    chown -R nginx-user:nginx-user /var/log/nginx && \
-    chown -R nginx-user:nginx-user /etc/nginx/conf.d
-
-# Criar diretórios necessários com permissões corretas
-RUN touch /var/run/nginx.pid && \
-    chown -R nginx-user:nginx-user /var/run/nginx.pid
+# Ajustar permissões para usuário não-root
+RUN chown -R appuser:appuser /usr/share/nginx/html && \
+    chown -R appuser:appuser /var/cache/nginx && \
+    chown -R appuser:appuser /var/log/nginx && \
+    chown -R appuser:appuser /etc/nginx/conf.d && \
+    touch /var/run/nginx.pid && \
+    chown -R appuser:appuser /var/run/nginx.pid
 
 # Mudar para usuário não-root
-USER nginx-user
+USER appuser
 
 # Expor porta
 EXPOSE 80
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:80/ || exit 1
+    CMD curl -f http://localhost/ || exit 1
 
 # Comando para iniciar o Nginx
 CMD ["nginx", "-g", "daemon off;"]
