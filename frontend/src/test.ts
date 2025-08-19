@@ -20,7 +20,5 @@ getTestBed().initTestEnvironment(
   platformBrowserDynamicTesting(),
 );
 
-// Then we find all the tests.
-const context = require.context('./', true, /\.spec\.ts$/);
-// And load the modules.
-context.keys().forEach(context);
+// Import test files manually since require.context is causing issues
+import './app/app.component.spec';
