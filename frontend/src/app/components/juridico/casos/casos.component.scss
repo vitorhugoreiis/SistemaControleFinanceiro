@@ -112,7 +112,7 @@
     display: grid;
     grid-template-columns: 2fr 1fr 1fr auto;
     gap: 1rem;
-    align-items: end;
+    align-items: flex-end;
 
     .filtro-grupo {
       display: flex;
@@ -158,7 +158,7 @@
 
     .filtro-acoes {
       display: flex;
-      align-items: end;
+      align-items: flex-end;
     }
   }
 }
