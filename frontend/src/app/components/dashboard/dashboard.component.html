@@ -78,8 +78,8 @@
       <h3>Balanço Financeiro</h3>
       <div class="chart">
         <canvas baseChart 
-          [datasets]="balanceChartData.datasets"
-          [labels]="balanceChartData.labels"
+          [datasets]="balanceChartData?.datasets"
+          [labels]="balanceChartData?.labels"
           [options]="barChartOptions"
           [type]="'bar'">
         </canvas>

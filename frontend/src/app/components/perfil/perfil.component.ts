@@ -102,6 +102,7 @@ export class PerfilComponent implements OnInit {
       novaSenha?: string;
       confirmacaoNovaSenha?: string;
       novoEmail?: string;
+      novoNome?: string;
     } = {};
     
     // Incluir senha atual apenas se houver mudança de senha
@@ -137,7 +138,14 @@ export class PerfilComponent implements OnInit {
       return;
     }
     
-    this.authService.alterarPerfil(this.usuario.id, alterarPerfilData).subscribe({
+    // Garantir que senhaAtual esteja presente quando necessário
+    if ((isPasswordChange || isEmailChange) && !alterarPerfilData.senhaAtual) {
+      this.errorMessage = 'Senha atual é obrigatória para alterações de senha ou email.';
+      this.loading = false;
+      return;
+    }
+    
+    this.authService.alterarPerfil(this.usuario.id, alterarPerfilData as any).subscribe({
       next: () => {
         let message = 'Perfil atualizado com sucesso!';
         const changes = [];

@@ -25,7 +25,7 @@ export class TransacaoService {
   }
 
   listarComFiltros(perfilId?: number, tipo?: string, categoriaId?: string): Observable<Transacao[]> {
-    const params = new HttpParams();
+    let params = new HttpParams();
     
     if (perfilId) {
       params = params.set('perfilId', perfilId.toString());
@@ -58,7 +58,7 @@ export class TransacaoService {
   }
 
   salvar(transacao: Transacao): Observable<Transacao> {
-    const params = new HttpParams();
+    let params = new HttpParams();
     
     // Se a transação tem perfilId, enviar como parâmetro de query
     if (transacao.perfilId) {

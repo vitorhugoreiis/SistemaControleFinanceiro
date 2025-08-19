@@ -15,9 +15,9 @@ export class DashboardComponent implements OnInit {
   errorMessage = '';
   
   // Para gráficos
-  receitasChartData: { labels: string[], datasets: { data: number[], backgroundColor?: string[], borderColor?: string[] }[] } | null = null;
-  despesasChartData: { labels: string[], datasets: { data: number[], backgroundColor?: string[], borderColor?: string[] }[] } | null = null;
-  balanceChartData: { labels: string[], datasets: { data: number[], backgroundColor?: string[], borderColor?: string[] }[] } | null = null;
+  receitasChartData: { labels: string[], datasets: { label?: string, data: number[], backgroundColor?: string[], borderColor?: string[], borderWidth?: number }[] } | null = null;
+  despesasChartData: { labels: string[], datasets: { label?: string, data: number[], backgroundColor?: string[], borderColor?: string[], borderWidth?: number }[] } | null = null;
+  balanceChartData: { labels: string[], datasets: { label?: string, data: number[], backgroundColor?: string[], borderColor?: string[], borderWidth?: number }[] } | null = null;
   
   // Para controle das abas
   activeTab: string = 'receitas';
